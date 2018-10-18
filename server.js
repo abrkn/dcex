@@ -41,10 +41,13 @@ var schema = buildSchema(`
     },
     type TxInput {
       vout: Int
+      txid: String
+      coinbase: String
     },
     type TxOutput {
       n: Int
       value: Float!
+      addresses: [String]
     },
     type Tx {
       hash: String!
@@ -61,13 +64,21 @@ var schema = buildSchema(`
 // await bitcoinRpc.cmdAsync('getblockhash', height);
 
 const formatTxInputFromRpc = vin => {
-  const { vout } = vin;
-  return { vout };
+  const { vout, txid, coinbase } = vin;
+  return { vout, txid, coinbase };
 };
 
 const formatTxOutputFromRpc = vout => {
-  const { n, value } = vout;
-  return { n, value };
+  const { n, value, scriptPubKey } = vout;
+  const { addresses } = scriptPubKey || {};
+
+  // console.log(vout);
+
+  return {
+    n,
+    value,
+    addresses,
+  };
 };
 
 const formatTxFromRpc = tx => {
@@ -104,7 +115,7 @@ var root = {
     const count = await root.blockCount();
     const heights = rangeRight(count - MAX_COUNT + 1, count + 1);
 
-    console.log({ count, heights });
+    // console.log({ count, heights });
 
     return pMap(heights, height => root.blockByHeight({ height, includeTxs: false }));
   },

@@ -16,10 +16,13 @@ export const blockQuery = gql`
         hash
         inputs {
           vout
+          txid
+          coinbase
         }
         outputs {
           n
           value
+          addresses
         }
       }
     }
@@ -32,13 +35,45 @@ export const blockQueryVars = {
 };
 
 const BlockTransactionInput = ({ input }) => {
-  return <div>TODO</div>;
+  const { txid, coinbase, vout } = input;
+
+  if (coinbase) {
+    return <div>Mined</div>;
+  }
+
+  if (txid) {
+    return (
+      <div>
+        <Link route="tx" params={{ hash: txid }}>
+          <a>
+            {txid}:{vout}
+          </a>
+        </Link>
+      </div>
+    );
+  }
+
+  return <div>Unknown</div>;
 };
 
 const BlockTransactionOutput = ({ output }) => {
-  const { value } = output;
+  const { value, addresses, n } = output;
 
-  return <div>{value} BTC</div>;
+  const address = addresses && addresses.length && addresses[0];
+
+  return (
+    <div>
+      {address && (
+        <span>
+          <Link route="address" params={{ address }}>
+            <a>{address}</a>
+          </Link>
+          <span> </span>
+        </span>
+      )}
+      {value} BTC
+    </div>
+  );
 };
 
 const BlockTransaction = ({ tx }) => {
@@ -77,10 +112,11 @@ const BlockTransactions = ({ txs }) => {
 export default function Block({ query: { hash } }) {
   return (
     <Query query={blockQuery} variables={{ hash }}>
-      {({ loading, error, data: { blockByHash: block } }) => {
+      {({ loading, error, data }) => {
         if (error) return <ErrorMessage message="Error loading block." />;
         if (loading) return <div>Loading</div>;
 
+        const { blockByHash: block } = data;
         const { txs, height } = block;
 
         return (
