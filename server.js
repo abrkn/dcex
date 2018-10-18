@@ -38,6 +38,7 @@ var schema = buildSchema(`
       blockByHeight(height: Int!): Block
       blocks: [Block!]
       blockCount: Int!
+      txByHash(hash: String!): Tx
     },
     type TxInput {
       vout: Int
@@ -53,6 +54,7 @@ var schema = buildSchema(`
       hash: String!
       inputs: [TxInput]
       outputs: [TxOutput]
+      blockHash: String
     },
     type Block {
       hash: String!
@@ -82,7 +84,9 @@ const formatTxOutputFromRpc = vout => {
 };
 
 const formatTxFromRpc = tx => {
-  const { hash, version, size, locktime, vin, vout } = tx;
+  const { version, size, locktime, vin, vout, blockhash } = tx;
+  const hash = tx.hash || tx.txid;
+
   return {
     hash,
     size,
@@ -90,6 +94,7 @@ const formatTxFromRpc = tx => {
     version,
     inputs: vin.map(formatTxInputFromRpc),
     outputs: vout.map(formatTxOutputFromRpc),
+    blockHash: blockhash,
   };
 };
 
@@ -105,6 +110,11 @@ var root = {
       height,
       ...(includeTxs ? { txs: block.tx.map(formatTxFromRpc) } : {}),
     };
+  },
+  txByHash: async ({ hash }) => {
+    // console.log('hash', { hash });
+    const tx = await bitcoinRpc.cmdAsync('getrawtransaction', hash, true);
+    return formatTxFromRpc(tx);
   },
   blockByHeight: ({ height, includeTxs = true }) =>
     bitcoinRpc.cmdAsync('getblockhash', height).then(hash => root.blockByHash({ hash, includeTxs })),
