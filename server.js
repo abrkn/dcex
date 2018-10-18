@@ -8,12 +8,14 @@ const bitcoin = require('bitcoin');
 const safync = require('./safync');
 const pMap = require('p-map');
 const { rangeRight } = require('lodash');
+const routes = require('./routes');
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = +(process.env.PORT || 3000);
 const app = next({ dev });
-const handle = app.getRequestHandler();
+const handler = routes.getRequestHandler(app);
+// const handle = app.getRequestHandler();
 
 function urlToBitcoinOptions(url) {
   return {
@@ -81,9 +83,11 @@ app
       })
     );
 
-    server.get('*', (req, res) => {
-      return handle(req, res);
-    });
+    server.use(handler);
+
+    // server.get('*', (req, res) => {
+    //   return handle(req, res);
+    // });
 
     server.listen(port, err => {
       if (err) throw err;
