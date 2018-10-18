@@ -1,6 +1,9 @@
 const routes = (module.exports = require('next-routes')());
 
-routes.add('block', '/blocks/:hash', 'block').add('tx', '/txs/:hash', 'tx');
+routes
+  .add('block', '/blocks/:hash', 'block')
+  .add('tx', '/txs/:hash', 'tx')
+  .add('address', '/addresses/:address', 'address');
 // .add('about')
 // .add('blog', '/blog/:slug')
 // .add('user', '/user/:id', 'profile')
