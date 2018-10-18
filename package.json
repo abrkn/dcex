@@ -1,6 +1,6 @@
 {
-  "name": "with-apollo",
-  "version": "2.0.0",
+  "name": "dcex",
+  "version": "1.0.0",
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "dev:watch": "NODE_ENV=development nodemon -x 'node server.js'",
@@ -29,6 +29,6 @@
   "engines": {
     "node": ">=9"
   },
-  "author": "",
+  "author": "Andreas Brekken <andreas@brekken.com>",
   "license": "ISC"
 }
