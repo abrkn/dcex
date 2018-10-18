@@ -18,6 +18,7 @@ export const blockQuery = gql`
           vout
         }
         outputs {
+          n
           value
         }
       }
@@ -48,11 +49,13 @@ const BlockTransaction = ({ tx }) => {
         <a>{hash}</a>
       </Link>
       <div>
+        <h3>Inputs</h3>
         {inputs.map(input => (
           <BlockTransactionInput key={input.vout} input={input} />
         ))}
       </div>
       <div>
+        <h3>Outputs</h3>
         {outputs.map(output => (
           <BlockTransactionOutput key={output.n} output={output} />
         ))}
