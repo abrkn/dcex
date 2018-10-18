@@ -78,11 +78,10 @@ export default function Block({ query: { hash } }) {
   return (
     <Query query={blockQuery} variables={{ hash }}>
       {({ loading, error, data: { blockByHash: block } }) => {
-        const { txs, height } = block;
         if (error) return <ErrorMessage message="Error loading block." />;
         if (loading) return <div>Loading</div>;
 
-        // const areMoreBlocks = true; // blocks.length < _blocksMeta.count;
+        const { txs, height } = block;
 
         return (
           <section>
