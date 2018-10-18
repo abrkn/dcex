@@ -35,6 +35,9 @@
     "react-dom": "16.5.2",
     "safep": "1.2.6"
   },
+  "engines": {
+    "node": ">=9"
+  },
   "author": "",
   "license": "ISC"
 }
