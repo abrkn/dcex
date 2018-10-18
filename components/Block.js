@@ -14,6 +14,12 @@ export const blockQuery = gql`
       height
       txs {
         hash
+        inputs {
+          vout
+        }
+        outputs {
+          value
+        }
       }
     }
   }
@@ -24,13 +30,33 @@ export const blockQueryVars = {
   // first: 10,
 };
 
+const BlockTransactionInput = ({ input }) => {
+  return <div>TODO</div>;
+};
+
+const BlockTransactionOutput = ({ output }) => {
+  const { value } = output;
+
+  return <div>{value} BTC</div>;
+};
+
 const BlockTransaction = ({ tx }) => {
-  const { hash } = tx;
+  const { hash, inputs, outputs } = tx;
   return (
     <div>
       <Link route="tx" params={{ hash }}>
         <a>{hash}</a>
       </Link>
+      <div>
+        {inputs.map(input => (
+          <BlockTransactionInput key={input.vout} input={input} />
+        ))}
+      </div>
+      <div>
+        {outputs.map(output => (
+          <BlockTransactionOutput key={output.n} output={output} />
+        ))}
+      </div>
     </div>
   );
 };

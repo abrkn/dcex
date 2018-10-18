@@ -40,10 +40,10 @@ var schema = buildSchema(`
       blockCount: Int!
     },
     type TxInput {
-      vout: Int!
+      vout: Int
     },
     type TxOutput {
-      n: Int!
+      n: Int
       value: Float!
     },
     type Tx {
@@ -61,11 +61,13 @@ var schema = buildSchema(`
 // await bitcoinRpc.cmdAsync('getblockhash', height);
 
 const formatTxInputFromRpc = vin => {
-  return vin;
+  const { vout } = vin;
+  return { vout };
 };
 
 const formatTxOutputFromRpc = vout => {
-  return vout;
+  const { n, value } = vout;
+  return { n, value };
 };
 
 const formatTxFromRpc = tx => {
