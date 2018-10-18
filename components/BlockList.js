@@ -2,7 +2,8 @@ import React from 'react';
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import ErrorMessage from './ErrorMessage';
-import Link from 'next/link';
+import { Link } from '../routes';
+// import Link from 'next/link';
 // import BlockUpvoter from './BlockUpvoter';
 
 export const blocksQuery = gql`
@@ -41,7 +42,7 @@ export default function BlockList() {
                 {blocks.map(block => (
                   <tr key={block.hash}>
                     <td>
-                      <Link href={'/blocks/' + block.hash}>
+                      <Link route="block" params={{ hash: block.hash }}>
                         <a>{block.height}</a>
                       </Link>
                     </td>
