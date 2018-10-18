@@ -6,7 +6,7 @@
     "dev:watch": "NODE_ENV=development nodemon -x 'node server.js'",
     "heroku-postbuild": "next build",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.js",
     "db:drop": "psql postgres://$DATABASE_HOST -c \"drop database $DB_NAME\" postgres",
     "db:drop:if-exists": "run-s -sl db:drop || true",
     "db:create": "psql postgres://$DATABASE_HOST -c \"create database $DB_NAME\" postgres",
