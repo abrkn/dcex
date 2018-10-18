@@ -39,21 +39,60 @@ var schema = buildSchema(`
       blocks: [Block!]
       blockCount: Int!
     },
+    type TxInput {
+      vout: Int!
+    },
+    type TxOutput {
+      n: Int!
+      value: Float!
+    },
+    type Tx {
+      hash: String!
+      inputs: [TxInput]
+      outputs: [TxOutput]
+    },
     type Block {
       hash: String!
       height: Int
+      txs: [Tx]
     }
 `);
 
 // await bitcoinRpc.cmdAsync('getblockhash', height);
 
+const formatTxInputFromRpc = vin => {
+  return vin;
+};
+
+const formatTxOutputFromRpc = vout => {
+  return vout;
+};
+
+const formatTxFromRpc = tx => {
+  const { hash, version, size, locktime, vin, vout } = tx;
+  return {
+    hash,
+    size,
+    locktime,
+    version,
+    inputs: vin.map(formatTxInputFromRpc),
+    outputs: vout.map(formatTxOutputFromRpc),
+  };
+};
+
 // Root resolver
 var root = {
-  blockByHash: ({ hash, includeTxs = true }) =>
-    bitcoinRpc.cmdAsync('getblock', hash, includeTxs ? 2 : 1).then(_ => ({
-      hash: _.hash,
-      height: _.height,
-    })),
+  blockByHash: async ({ hash, includeTxs = true }) => {
+    const verbosity = includeTxs ? 2 : 1;
+    const block = await bitcoinRpc.cmdAsync('getblock', hash, verbosity);
+    const { height } = block;
+
+    return {
+      hash,
+      height,
+      ...(includeTxs ? { txs: block.tx.map(formatTxFromRpc) } : {}),
+    };
+  },
   blockByHeight: ({ height, includeTxs = true }) =>
     bitcoinRpc.cmdAsync('getblockhash', height).then(hash => root.blockByHash({ hash, includeTxs })),
   blockCount: () => bitcoinRpc.cmdAsync('getblockcount'),

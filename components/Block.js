@@ -12,6 +12,9 @@ export const blockQuery = gql`
     blockByHash(hash: $hash) {
       hash
       height
+      txs {
+        hash
+      }
     }
   }
 `;
@@ -21,10 +24,32 @@ export const blockQueryVars = {
   // first: 10,
 };
 
+const BlockTransaction = ({ tx }) => {
+  const { hash } = tx;
+  return (
+    <div>
+      <Link route="tx" params={{ hash }}>
+        <a>{hash}</a>
+      </Link>
+    </div>
+  );
+};
+
+const BlockTransactions = ({ txs }) => {
+  return (
+    <div>
+      {txs.map(tx => (
+        <BlockTransaction key={tx.hash} tx={tx} />
+      ))}
+    </div>
+  );
+};
+
 export default function Block({ query: { hash } }) {
   return (
     <Query query={blockQuery} variables={{ hash }}>
-      {({ loading, error, data: { blockByHash: block }, fetchMore }) => {
+      {({ loading, error, data: { blockByHash: block } }) => {
+        const { txs, height } = block;
         if (error) return <ErrorMessage message="Error loading block." />;
         if (loading) return <div>Loading</div>;
 
@@ -42,30 +67,20 @@ export default function Block({ query: { hash } }) {
                 </tr>
                 <tr>
                   <th>Height</th>
-                  <td>{block.height}</td>
+                  <td>{height}</td>
                 </tr>
               </tbody>
             </table>
+
+            {txs && (
+              <div>
+                <h2>Transactions</h2>
+                <BlockTransactions txs={txs} />
+              </div>
+            )}
           </section>
         );
       }}
     </Query>
   );
-}
-
-function loadMoreBlocks(blocks, fetchMore) {
-  fetchMore({
-    variables: {
-      skip: blocks.length,
-    },
-    updateQuery: (previousResult, { fetchMoreResult }) => {
-      if (!fetchMoreResult) {
-        return previousResult;
-      }
-      return Object.assign({}, previousResult, {
-        // Append the new blocks results to the old one
-        blocks: [...previousResult.blocks, ...fetchMoreResult.blocks],
-      });
-    },
-  });
 }
