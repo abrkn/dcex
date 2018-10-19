@@ -12,13 +12,12 @@ begin
    AND    c.relkind = 'r'    -- only tables
    ));
 
-  if not settings_table_exists then
-    return;
+  if settings_table_exists then
+    if (select schema_version from settings) = 2 then
+      return;
+    end if;
   end if;
 
-  if (select schema_version from settings) = 2 then
-    return;
-  end if;
 
   drop table if exists vout;
   drop table if exists vin;
