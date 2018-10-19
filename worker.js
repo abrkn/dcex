@@ -28,13 +28,6 @@ function* applyVout(t, block, tx, vout, index) {
   });
 }
 
-function* undoVout(t, block, tx, vout, index) {
-  yield t.none(`delete from vout where tx_hash = $/txHash/ and n = $/n/`, {
-    txHash: tx.hash,
-    n: index,
-  });
-}
-
 function* applyVin(t, block, tx, vin, index) {
   yield t.none(
     `insert into vin (tx_hash, n, coinbase, txid, vout, script_sig) values ($/txHash/, $/n/, $/coinbase/, $/txid/, $/vout/, $/scriptSig/)`,
@@ -47,13 +40,6 @@ function* applyVin(t, block, tx, vin, index) {
       scriptSig: vin.scriptSig,
     }
   );
-}
-
-function* undoVin(t, block, tx, vin, index) {
-  yield t.none(`delete from vin where tx_hash = $/txHash/ and n = $/n/`, {
-    txHash: tx.hash,
-    n: index,
-  });
 }
 
 function* applyTx(t, block, tx, index) {
@@ -74,27 +60,6 @@ function* applyTx(t, block, tx, index) {
   }
 }
 
-function* undoTx(t, block, tx) {
-  yield t.none(`delete from block_tx where tx_hash = $/txHash/ and block_hash = $/blockHash/`, {
-    txHash: tx.hash,
-    blockHash: block.hash,
-  });
-
-  for (let index = tx.vout.length - 1; index >= 0; index--) {
-    const vout = tx.vout[index];
-    yield* undoVout(t, block, tx, vout, index);
-  }
-
-  for (let index = tx.vin.length - 1; index >= 0; index--) {
-    const vin = tx.vin[index];
-    yield* undoVin(t, block, tx, vin, index);
-  }
-
-  yield t.none(`delete from tx where hash = $/hash/`, {
-    hash: tx.hash,
-  });
-}
-
 function* applyBlock(t, block) {
   yield t.none(`insert into block (hash, height) values ($/hash/, $/height/)`, {
     hash: block.hash,
@@ -105,16 +70,6 @@ function* applyBlock(t, block) {
     const tx = block.tx[i];
     yield* applyTx(t, block, tx, i);
   }
-}
-
-function* undoBlock(t, block) {
-  for (const tx of block.tx.slice().reverse()) {
-    yield* undoTx(t, block, tx);
-  }
-
-  yield t.none(`delete from block where hash = $/hash/`, {
-    hash: block.hash,
-  });
 }
 
 const main = async () => {
