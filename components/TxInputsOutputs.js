@@ -5,7 +5,12 @@ const BlockTransactionInput = ({ input }) => {
   const { txid, coinbase, vout } = input;
 
   if (coinbase) {
-    return <div>Mined</div>;
+    return (
+      <div>
+        <p>Mined</p>
+        <pre>{new Buffer(coinbase, 'hex').toString().replace(/[^ -~]+/g, '?')}</pre>
+      </div>
+    );
   }
 
   if (txid) {
