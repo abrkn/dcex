@@ -66,46 +66,9 @@ var schema = buildSchema(`
     }
 `);
 
-// await bitcoinRpc.cmdAsync('getblockhash', height);
-
-const formatTxInputFromRpc = vin => {
-  const { vout, txid, coinbase } = vin;
-  return { vout, txid, coinbase };
-};
-
-const formatTxOutputFromRpc = vout => {
-  const { n, value, scriptPubKey } = vout;
-  const { addresses } = scriptPubKey || {};
-
-  // console.log(vout);
-
-  return {
-    n,
-    value,
-    addresses,
-  };
-};
-
-const formatTxFromRpc = tx => {
-  const { version, size, locktime, vin, vout, blockhash } = tx;
-  const hash = tx.hash || tx.txid;
-
-  return {
-    hash,
-    size,
-    locktime,
-    version,
-    inputs: vin.map(formatTxInputFromRpc),
-    outputs: vout.map(formatTxOutputFromRpc),
-    blockHash: blockhash,
-  };
-};
-
 const formatTxFromDb = tx => {
   return {
     hash: tx.hash,
-    inputs: [], // TODO: Rename to vin
-    outputs: [], // TODO: Rename vout
   };
 };
 
@@ -115,17 +78,8 @@ var root = {
     const block = await db.oneOrNone(`select hash, height from block where hash = $/hash/`, { hash });
 
     if (!block) {
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
-      console.log('OMG THERES NO BLOCK WITB HASH', hash);
       return null;
     }
-
-    console.log('KAP!');
 
     return {
       hash: block.hash,
@@ -133,12 +87,32 @@ var root = {
       txs: await root.txsByBlock({ hash }),
     };
   },
+  vinByTx: async ({ hash }) => {
+    const vin = await db.any(`select * from vin where tx_hash = $/hash/ order by n asc`, { hash });
+
+    return vin.map(_ => ({
+      txHash: _.tx_hash,
+      n: _.n,
+      coinbase: _.coinbase,
+      txid: _.txid,
+      vout: _.vout,
+      scriptSig: _.script_sig,
+    }));
+  },
+  voutByTx: async ({ hash }) => {
+    const vout = await db.any(`select * from vout where tx_hash = $/hash/ order by n asc`, { hash });
+
+    return vout.map(_ => ({
+      txHash: _.tx_hash,
+      n: _.n,
+      scriptPubKey: _.script_pub_key,
+      value: _.value,
+    }));
+  },
   txsByBlock: async ({ hash }) => {
     const txs = await db.any(`select hash from tx where block_hash = $/hash/ order by n asc`, { hash });
 
-    console.log({ txs });
-
-    return txs.map(formatTxFromDb);
+    return pMap(txs, tx => root.txByHash({ hash: tx.hash }));
   },
   txByHash: async ({ hash }) => {
     const tx = await db.oneOrNone(`select hash from tx where hash = $/hash/`, { hash });
@@ -147,7 +121,11 @@ var root = {
       return null;
     }
 
-    return formatTxFromDb(tx);
+    return {
+      ...formatTxFromDb(tx),
+      inputs: await root.vinByTx({ hash }),
+      outputs: await root.voutByTx({ hash }),
+    };
   },
   blockByHeight: async ({ height, includeTxs = true }) => {
     const row = await db.oneOrNone(`select hash from block where height = $/height/`, { height });
@@ -164,8 +142,6 @@ var root = {
 
     const count = await root.blockCount();
     const heights = rangeRight(count - MAX_COUNT + 1, count + 1);
-
-    // console.log({ count, heights });
 
     return pMap(heights, height => root.blockByHeight({ height, includeTxs: false }));
   },

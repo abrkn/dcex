@@ -21,11 +21,15 @@ safync.applyTo(bitcoinRpc, 'cmd');
 const memBitcoinRpcCmdAsync = pMemoize(bitcoinRpc.cmdAsync, { cache: createRedisMemCache(REDIS_URL, 'drivenetRpc') });
 
 function* applyVout(t, block, tx, vout, index) {
-  yield t.none(`insert into vout (tx_hash, n, script_pub_key) values ($/txHash/, $/n/, $/scriptPubKey/)`, {
-    txHash: tx.hash,
-    n: index,
-    scriptPubKey: vout.scriptPubKey,
-  });
+  yield t.none(
+    `insert into vout (tx_hash, n, script_pub_key, value) values ($/txHash/, $/n/, $/scriptPubKey/, $/value/)`,
+    {
+      txHash: tx.hash,
+      n: index,
+      scriptPubKey: vout.scriptPubKey,
+      value: vout.value,
+    }
+  );
 }
 
 function* applyVin(t, block, tx, vin, index) {
@@ -81,7 +85,6 @@ const main = async () => {
   const tick = async () => {
     let { height: localHeight } = await db.one('select coalesce(max(height), -1) height from block');
     const { blocks: remoteHeight } = await bitcoinRpc.cmdAsync('getblockchaininfo');
-    // console.log({ localHeight, remoteHeight });
 
     for (; localHeight >= 0; localHeight--) {
       const { hash: localHash } = await db.one(`select hash from block where height = $/localHeight/`, {
@@ -89,8 +92,6 @@ const main = async () => {
       });
 
       const remoteHash = await bitcoinRpc.cmdAsync('getblockhash', localHeight);
-
-      // console.log({ localHeight, localHash, remoteHash });
 
       // TODO: Remove this
       const rewindRandomly = Math.random() > 0.25;
@@ -112,15 +113,12 @@ const main = async () => {
       // process.exit(1);
     }
 
-    // console.log({ localHeight, remoteHeight });
-
     let blocksAppended = 0;
 
     for (localHeight++; localHeight <= remoteHeight; localHeight++) {
       console.log('Appending block at height', localHeight);
 
       const blockHash = await bitcoinRpc.cmdAsync('getblockhash', localHeight);
-      // console.log({ localHeight, blockHash });
       const block = await memBitcoinRpcCmdAsync('getblock', blockHash, 2);
 
       await db.tx(t => t.batch(Array.from(applyBlock(t, block))));

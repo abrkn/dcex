@@ -13,7 +13,7 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 2 then
+    if (select schema_version from settings) = 3 then
       return;
     end if;
   end if;
@@ -26,7 +26,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(2)
+    schema_version int not null default(3)
   );
 
   insert into settings default values;
@@ -66,6 +66,6 @@ begin
     tx_hash text not null references tx(hash) on delete cascade,
     n int check(n >= 0),
     script_pub_key jsonb,
-    value bigint
+    value bigint not null
   );
 end; $$ language plpgsql;
