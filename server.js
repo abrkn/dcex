@@ -9,6 +9,7 @@ const safync = require('./safync');
 const pMap = require('p-map');
 const { rangeRight } = require('lodash');
 const routes = require('./routes');
+const pgp = require('pg-promise');
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -26,10 +27,12 @@ function urlToBitcoinOptions(url) {
   };
 }
 
-const { BITCOIND_RPC_URL } = process.env;
+const { BITCOIND_RPC_URL, DATABASE_URL } = process.env;
 
 const bitcoinRpc = new bitcoin.Client(urlToBitcoinOptions(new URL(BITCOIND_RPC_URL)));
 safync.applyTo(bitcoinRpc, 'cmd');
+
+const db = pgp()(DATABASE_URL);
 
 // GraphQL schema
 var schema = buildSchema(`
@@ -98,27 +101,64 @@ const formatTxFromRpc = tx => {
   };
 };
 
+const formatTxFromDb = tx => {
+  return {
+    hash: tx.hash,
+    inputs: [], // TODO: Rename to vin
+    outputs: [], // TODO: Rename vout
+  };
+};
+
 // Root resolver
 var root = {
   blockByHash: async ({ hash, includeTxs = true }) => {
-    const verbosity = includeTxs ? 2 : 1;
-    const block = await bitcoinRpc.cmdAsync('getblock', hash, verbosity);
-    const { height } = block;
+    const block = await db.oneOrNone(`select hash, height from block where hash = $/hash/`, { hash });
+
+    if (!block) {
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      console.log('OMG THERES NO BLOCK WITB HASH', hash);
+      return null;
+    }
+
+    console.log('KAP!');
 
     return {
-      hash,
-      height,
-      ...(includeTxs ? { txs: block.tx.map(formatTxFromRpc) } : {}),
+      hash: block.hash,
+      height: block.height,
+      txs: await root.txsByBlock({ hash }),
     };
   },
-  txByHash: async ({ hash }) => {
-    // console.log('hash', { hash });
-    const tx = await bitcoinRpc.cmdAsync('getrawtransaction', hash, true);
-    return formatTxFromRpc(tx);
+  txsByBlock: async ({ hash }) => {
+    const txs = await db.any(`select hash from tx where block_hash = $/hash/ order by n asc`, { hash });
+
+    console.log({ txs });
+
+    return txs.map(formatTxFromDb);
   },
-  blockByHeight: ({ height, includeTxs = true }) =>
-    bitcoinRpc.cmdAsync('getblockhash', height).then(hash => root.blockByHash({ hash, includeTxs })),
-  blockCount: () => bitcoinRpc.cmdAsync('getblockcount'),
+  txByHash: async ({ hash }) => {
+    const tx = await db.oneOrNone(`select hash from tx where hash = $/hash/`, { hash });
+
+    if (!tx) {
+      return null;
+    }
+
+    return formatTxFromDb(tx);
+  },
+  blockByHeight: async ({ height, includeTxs = true }) => {
+    const row = await db.oneOrNone(`select hash from block where height = $/height/`, { height });
+
+    if (!row) {
+      return null;
+    }
+
+    return root.blockByHash({ hash: row.hash });
+  },
+  blockCount: () => db.one('select coalesce(max(height), 0) height from block').then(_ => _.height),
   blocks: async () => {
     const MAX_COUNT = 10;
 
