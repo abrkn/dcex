@@ -42,6 +42,9 @@ export default function Transaction({ query: { hash } }) {
         if (loading) return <div>Loading</div>;
 
         const { txByHash: tx } = data;
+
+        if (!tx) return <ErrorMessage message={`Transaction ${txId} not found`} />;
+
         const { hash, blockHash } = tx;
 
         return (

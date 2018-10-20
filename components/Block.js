@@ -73,6 +73,9 @@ export default function Block({ query: { hash } }) {
         if (loading) return <div>Loading</div>;
 
         const { blockByHash: block } = data;
+
+        if (!block) return <ErrorMessage message={`Block ${hash} not found`} />;
+
         const { txesByBlockHash: txs, height } = block;
 
         return (
