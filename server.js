@@ -33,8 +33,6 @@ const { BITCOIND_RPC_URL, DATABASE_URL } = process.env;
 const bitcoinRpc = new bitcoin.Client(urlToBitcoinOptions(new URL(BITCOIND_RPC_URL)));
 safync.applyTo(bitcoinRpc, 'cmd');
 
-const db = pgp()(DATABASE_URL);
-
 app
   .prepare()
   .then(() => {
