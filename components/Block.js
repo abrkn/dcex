@@ -12,18 +12,26 @@ export const blockQuery = gql`
   query blocks($hash: String!) {
     blockByHash(hash: $hash) {
       hash
-      height
-      txs {
-        hash
-        vin {
-          vout
-          txid
-          coinbase
-        }
-        vout {
+      txesByBlockHash {
+        nodes {
+          hash
           n
-          value
-          addresses
+          vinsByTxHash {
+            nodes {
+              txid
+              n
+              coinbase
+              vout
+              scriptSig
+            }
+          }
+          voutsByTxHash {
+            nodes {
+              n
+              scriptPubKey
+              value
+            }
+          }
         }
       }
     }
@@ -65,7 +73,7 @@ export default function Block({ query: { hash } }) {
         if (loading) return <div>Loading</div>;
 
         const { blockByHash: block } = data;
-        const { txs, height } = block;
+        const { txesByBlockHash: txs, height } = block;
 
         return (
           <section>
@@ -87,7 +95,7 @@ export default function Block({ query: { hash } }) {
             {txs && (
               <div>
                 <h2>Transactions</h2>
-                <BlockTransactions txs={txs} />
+                <BlockTransactions txs={txs.nodes} />
               </div>
             )}
           </section>

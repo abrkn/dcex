@@ -8,24 +8,27 @@ import { Link } from '../routes';
 
 export const blocksQuery = gql`
   {
-    blocks {
-      hash
-      height
+    allBlocks(first: 25, orderBy: HEIGHT_DESC) {
+      nodes {
+        hash
+        height
+      }
     }
   }
 `;
+
 export const blocksQueryVars = {
-  count: 10,
-  // skip: 0,
-  // first: 10,
+  first: 25,
 };
 
 export default function BlockList() {
   return (
     <Query query={blocksQuery} variables={blocksQueryVars}>
-      {({ loading, error, data: { blocks }, fetchMore }) => {
+      {({ loading, error, data, fetchMore }) => {
         if (error) return <ErrorMessage message="Error loading blocks." />;
         if (loading) return <div>Loading</div>;
+
+        const { allBlocks: blocks } = data;
 
         const areMoreBlocks = true; // blocks.length < _blocksMeta.count;
 
@@ -39,7 +42,7 @@ export default function BlockList() {
                 </tr>
               </thead>
               <tbody>
-                {blocks.map(block => (
+                {blocks.nodes.map(block => (
                   <tr key={block.hash}>
                     <td>
                       <Link route="block" params={{ hash: block.hash }}>

@@ -2,14 +2,15 @@ const assert = require('assert');
 const { URL } = require('url');
 const express = require('express');
 const next = require('next');
-var express_graphql = require('express-graphql');
-var { buildSchema } = require('graphql');
+// var express_graphql = require('express-graphql');
+// var { buildSchema } = require('graphql');
 const bitcoin = require('bitcoin');
 const safync = require('./safync');
 const pMap = require('p-map');
 const { rangeRight } = require('lodash');
 const routes = require('./routes');
 const pgp = require('pg-promise');
+const postgraphile = require('postgraphile');
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -35,36 +36,36 @@ safync.applyTo(bitcoinRpc, 'cmd');
 const db = pgp()(DATABASE_URL);
 
 // GraphQL schema
-var schema = buildSchema(`
-    type Query {
-      blockByHash(hash: String!): Block
-      blockByHeight(height: Int!): Block
-      blocks: [Block!]
-      blockCount: Int!
-      txByHash(hash: String!): Tx
-    },
-    type TxInput {
-      vout: Int
-      txid: String
-      coinbase: String
-    },
-    type TxOutput {
-      n: Int
-      value: Float!
-      addresses: [String]
-    },
-    type Tx {
-      hash: String!
-      vin: [TxInput]
-      vout: [TxOutput]
-      blockHash: String
-    },
-    type Block {
-      hash: String!
-      height: Int
-      txs: [Tx]
-    }
-`);
+// var schema = buildSchema(`
+//     type Query {
+//       blockByHash(hash: String!): Block
+//       blockByHeight(height: Int!): Block
+//       blocks: [Block!]
+//       blockCount: Int!
+//       txByHash(hash: String!): Tx
+//     },
+//     type TxInput {
+//       vout: Int
+//       txid: String
+//       coinbase: String
+//     },
+//     type TxOutput {
+//       n: Int
+//       value: Float!
+//       addresses: [String]
+//     },
+//     type Tx {
+//       hash: String!
+//       vin: [TxInput]
+//       vout: [TxOutput]
+//       blockHash: String
+//     },
+//     type Block {
+//       hash: String!
+//       height: Int
+//       txs: [Tx]
+//     }
+// `);
 
 const formatTxFromDb = tx => {
   return {
@@ -156,13 +157,20 @@ app
     const server = express();
 
     server.use(
-      '/graphql',
-      express_graphql({
-        schema: schema,
-        rootValue: root,
+      postgraphile.default(process.env.DATABASE_URL, 'public', {
+        watchPg: process.env.NODE_ENV !== 'production',
         graphiql: true,
       })
     );
+
+    // server.use(
+    //   '/graphql',
+    //   express_graphql({
+    //     schema: schema,
+    //     rootValue: root,
+    //     graphiql: true,
+    //   })
+    // );
 
     server.use(handler);
 

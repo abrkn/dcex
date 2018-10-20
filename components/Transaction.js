@@ -8,17 +8,22 @@ import TxInputsOutputs from './TxInputsOutputs';
 export const txQuery = gql`
   query txs($hash: String!) {
     txByHash(hash: $hash) {
-      hash
-      blockHash
-      vin {
-        vout
-        txid
-        coinbase
+      n
+      vinsByTxHash {
+        nodes {
+          txid
+          n
+          coinbase
+          vout
+          scriptSig
+        }
       }
-      vout {
-        n
-        value
-        addresses
+      voutsByTxHash {
+        nodes {
+          n
+          scriptPubKey
+          value
+        }
       }
     }
   }

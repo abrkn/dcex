@@ -49,7 +49,11 @@ const BlockTransactionOutput = ({ vout }) => {
 };
 
 export default ({ tx }) => {
-  const { vin, vout } = tx;
+  const {
+    vinsByTxHash: { nodes: vin },
+    voutsByTxHash: { nodes: vout },
+  } = tx;
+
   return (
     <div>
       <div>
