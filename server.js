@@ -11,6 +11,7 @@ const { rangeRight } = require('lodash');
 const routes = require('./routes');
 const pgp = require('pg-promise');
 const postgraphile = require('postgraphile');
+const config = require('./config');
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -28,7 +29,7 @@ function urlToBitcoinOptions(url) {
   };
 }
 
-const { BITCOIND_RPC_URL, DATABASE_URL } = process.env;
+const { BITCOIND_RPC_URL } = process.env;
 
 const bitcoinRpc = new bitcoin.Client(urlToBitcoinOptions(new URL(BITCOIND_RPC_URL)));
 safync.applyTo(bitcoinRpc, 'cmd');
@@ -39,7 +40,7 @@ app
     const server = express();
 
     server.use(
-      postgraphile.default(process.env.DATABASE_URL, 'public', {
+      postgraphile.default(config.databaseUrl, 'public', {
         watchPg: process.env.NODE_ENV !== 'production',
         graphiql: true,
         showErrorStack: true,

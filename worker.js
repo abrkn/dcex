@@ -10,10 +10,11 @@ const { pMemoize } = require('./pmr');
 const pgp = require('pg-promise');
 const createRedisMemCache = require('p-memoize-redis');
 const delay = require('delay');
+const config = require('./config');
 
 Promise.promisifyAll(redis);
 
-const { BITCOIND_RPC_URL, REDIS_URL, DATABASE_URL } = process.env;
+const { BITCOIND_RPC_URL, REDIS_URL } = process.env;
 
 const bitcoinRpc = new bitcoin.Client(urlToBitcoinOptions(new URL(BITCOIND_RPC_URL)));
 safync.applyTo(bitcoinRpc, 'cmd');
@@ -78,7 +79,7 @@ const main = async () => {
   // TODO: detect re-org
   console.log('Starting');
 
-  const db = pgp()(DATABASE_URL);
+  const db = pgp()(config.databaseUrl);
 
   const tick = async () => {
     let { height: localHeight } = await db.one('select coalesce(max(height), -1) height from block');
