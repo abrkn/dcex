@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from '../routes';
+import { get } from 'lodash';
 
 const BlockTransactionInput = ({ vin }) => {
   const { prevTxId, coinbase, vout, value } = vin;
@@ -30,9 +31,9 @@ const BlockTransactionInput = ({ vin }) => {
 };
 
 const BlockTransactionOutput = ({ vout }) => {
-  const { value, addresses } = vout;
-
-  const address = addresses && addresses.length && addresses[0];
+  const { value } = vout;
+  const scriptPubKey = vout.scriptPubKey && JSON.parse(vout.scriptPubKey);
+  const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
 
   return (
     <div>
