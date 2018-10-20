@@ -38,7 +38,7 @@ export default function BlockList() {
               <thead>
                 <tr>
                   <th>Height</th>
-                  <th>Txid</th>
+                  <th>Hash</th>
                 </tr>
               </thead>
               <tbody>
