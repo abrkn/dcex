@@ -13,7 +13,7 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 8 then
+    if (select schema_version from settings) = 9 then
       return;
     end if;
   end if;
@@ -27,7 +27,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(8)
+    schema_version int not null default(9)
   );
 
   insert into settings default values;
@@ -72,13 +72,14 @@ begin
     value numeric not null
   );
 
+  -- TODO: Add an unwind of this if used to aggregate
   create function vin_insert() returns trigger as $$
   begin
     if new.tx_id is not null then
       select value
       from vout
       into new.value
-      where vout.tx_id = new.tx_id and vout.n = new.vout;
+      where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
     end if;
 
     return new;
