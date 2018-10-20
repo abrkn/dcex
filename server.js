@@ -55,8 +55,8 @@ var schema = buildSchema(`
     },
     type Tx {
       hash: String!
-      inputs: [TxInput]
-      outputs: [TxOutput]
+      vin: [TxInput]
+      vout: [TxOutput]
       blockHash: String
     },
     type Block {
@@ -114,7 +114,10 @@ var root = {
 
     return pMap(txs, tx => root.txByHash({ hash: tx.hash }));
   },
-  txByHash: async ({ hash }) => {
+  txByHash: async (...args) => {
+    console.log({ args });
+    const [{ hash }] = args;
+
     const tx = await db.oneOrNone(`select hash from tx where hash = $/hash/`, { hash });
 
     if (!tx) {
@@ -123,8 +126,8 @@ var root = {
 
     return {
       ...formatTxFromDb(tx),
-      inputs: await root.vinByTx({ hash }),
-      outputs: await root.voutByTx({ hash }),
+      vin: await root.vinByTx({ hash }),
+      vout: await root.voutByTx({ hash }),
     };
   },
   blockByHeight: async ({ height, includeTxs = true }) => {

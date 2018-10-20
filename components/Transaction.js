@@ -10,12 +10,12 @@ export const txQuery = gql`
     txByHash(hash: $hash) {
       hash
       blockHash
-      inputs {
+      vin {
         vout
         txid
         coinbase
       }
-      outputs {
+      vout {
         n
         value
         addresses

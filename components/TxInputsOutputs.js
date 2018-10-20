@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from '../routes';
 
-const BlockTransactionInput = ({ input }) => {
-  const { txid, coinbase, vout } = input;
+const BlockTransactionInput = ({ vin }) => {
+  const { txid, coinbase, vout } = vin;
 
   if (coinbase) {
     return (
@@ -28,8 +28,8 @@ const BlockTransactionInput = ({ input }) => {
   return <div>Unknown</div>;
 };
 
-const BlockTransactionOutput = ({ output }) => {
-  const { value, addresses } = output;
+const BlockTransactionOutput = ({ vout }) => {
+  const { value, addresses } = vout;
 
   const address = addresses && addresses.length && addresses[0];
 
@@ -49,19 +49,19 @@ const BlockTransactionOutput = ({ output }) => {
 };
 
 export default ({ tx }) => {
-  const { inputs, outputs } = tx;
+  const { vin, vout } = tx;
   return (
     <div>
       <div>
         <h3>Inputs</h3>
-        {inputs.map(input => (
-          <BlockTransactionInput key={input.vout} input={input} />
+        {vin.map(vin => (
+          <BlockTransactionInput key={vin.vout} vin={vin} />
         ))}
       </div>
       <div>
         <h3>Outputs</h3>
-        {outputs.map(output => (
-          <BlockTransactionOutput key={output.n} output={output} />
+        {vout.map(vout => (
+          <BlockTransactionOutput key={vout.n} vout={vout} />
         ))}
       </div>
     </div>
