@@ -13,7 +13,7 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 7 then
+    if (select schema_version from settings) = 8 then
       return;
     end if;
   end if;
@@ -27,7 +27,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(7)
+    schema_version int not null default(8)
   );
 
   insert into settings default values;
@@ -78,7 +78,7 @@ begin
       select value
       from vout
       into new.value
-      where vout.tx_id = new.tx_id and vout.n = new.n;
+      where vout.tx_id = new.tx_id and vout.n = new.vout;
     end if;
 
     return new;
