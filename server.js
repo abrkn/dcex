@@ -35,122 +35,6 @@ safync.applyTo(bitcoinRpc, 'cmd');
 
 const db = pgp()(DATABASE_URL);
 
-// GraphQL schema
-// var schema = buildSchema(`
-//     type Query {
-//       blockByHash(hash: String!): Block
-//       blockByHeight(height: Int!): Block
-//       blocks: [Block!]
-//       blockCount: Int!
-//       txByHash(hash: String!): Tx
-//     },
-//     type TxInput {
-//       vout: Int
-//       txid: String
-//       coinbase: String
-//     },
-//     type TxOutput {
-//       n: Int
-//       value: Float!
-//       addresses: [String]
-//     },
-//     type Tx {
-//       hash: String!
-//       vin: [TxInput]
-//       vout: [TxOutput]
-//       blockHash: String
-//     },
-//     type Block {
-//       hash: String!
-//       height: Int
-//       txs: [Tx]
-//     }
-// `);
-
-const formatTxFromDb = tx => {
-  return {
-    hash: tx.hash,
-  };
-};
-
-// Root resolver
-var root = {
-  blockByHash: async ({ hash, includeTxs = true }) => {
-    const block = await db.oneOrNone(`select hash, height from block where hash = $/hash/`, { hash });
-
-    if (!block) {
-      return null;
-    }
-
-    return {
-      hash: block.hash,
-      height: block.height,
-      txs: await root.txsByBlock({ hash }),
-    };
-  },
-  vinByTx: async ({ hash }) => {
-    const vin = await db.any(`select * from vin where tx_hash = $/hash/ order by n asc`, { hash });
-
-    return vin.map(_ => ({
-      txHash: _.tx_hash,
-      n: _.n,
-      coinbase: _.coinbase,
-      txid: _.txid,
-      vout: _.vout,
-      scriptSig: _.script_sig,
-    }));
-  },
-  voutByTx: async ({ hash }) => {
-    const vout = await db.any(`select * from vout where tx_hash = $/hash/ order by n asc`, { hash });
-
-    return vout.map(_ => ({
-      txHash: _.tx_hash,
-      n: _.n,
-      scriptPubKey: _.script_pub_key,
-      value: _.value,
-    }));
-  },
-  txsByBlock: async ({ hash }) => {
-    const txs = await db.any(`select hash from tx where block_hash = $/hash/ order by n asc`, { hash });
-
-    return pMap(txs, tx => root.txByHash({ hash: tx.hash }));
-  },
-  txByHash: async (...args) => {
-    console.log({ args });
-    const [{ hash }] = args;
-
-    const tx = await db.oneOrNone(`select hash from tx where hash = $/hash/`, { hash });
-
-    if (!tx) {
-      return null;
-    }
-
-    return {
-      ...formatTxFromDb(tx),
-      vin: await root.vinByTx({ hash }),
-      vout: await root.voutByTx({ hash }),
-    };
-  },
-  blockByHeight: async ({ height, includeTxs = true }) => {
-    const row = await db.oneOrNone(`select hash from block where height = $/height/`, { height });
-
-    if (!row) {
-      return null;
-    }
-
-    return root.blockByHash({ hash: row.hash });
-  },
-  blockCount: () => db.one('select coalesce(max(height), 0) height from block').then(_ => _.height),
-  blocks: async () => {
-    const MAX_COUNT = 10;
-
-    const count = await root.blockCount();
-    const heights = rangeRight(count - MAX_COUNT + 1, count + 1);
-
-    return pMap(heights, height => root.blockByHeight({ height, includeTxs: false }));
-  },
-};
-
 app
   .prepare()
   .then(() => {
@@ -160,17 +44,10 @@ app
       postgraphile.default(process.env.DATABASE_URL, 'public', {
         watchPg: process.env.NODE_ENV !== 'production',
         graphiql: true,
+        showErrorStack: true,
+        extendedErrors: ['hint', 'detail', 'errcode'],
       })
     );
-
-    // server.use(
-    //   '/graphql',
-    //   express_graphql({
-    //     schema: schema,
-    //     rootValue: root,
-    //     graphiql: true,
-    //   })
-    // );
 
     server.use(handler);
 
