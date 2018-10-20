@@ -15,12 +15,12 @@ export const blockQuery = gql`
       height
       txs {
         hash
-        inputs {
+        vin {
           vout
           txid
           coinbase
         }
-        outputs {
+        vout {
           n
           value
           addresses
