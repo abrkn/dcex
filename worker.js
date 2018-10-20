@@ -92,7 +92,7 @@ const main = async () => {
       const remoteHash = await bitcoinRpc.cmdAsync('getblockhash', localHeight);
 
       // TODO: Remove this
-      const rewindRandomly = Math.random() > 0.25;
+      const rewindRandomly = false && Math.random() > 0.25;
 
       if (rewindRandomly) {
         console.log('**TESTING** Will rewind randomly');
@@ -122,7 +122,7 @@ const main = async () => {
       await db.tx(t => t.batch(Array.from(applyBlock(t, block))));
 
       // TODO: Remove this
-      if (++blocksAppended > 10) {
+      if (false && ++blocksAppended > 10) {
         break;
       }
     }
