@@ -41,7 +41,7 @@ app
     const server = express();
 
     server.use(
-      postgraphile.default(process.env.DATABASE_URL, 'public', {
+      postgraphile.default(process.env.DATABASE_URL + '?sslmode=require', 'public', {
         watchPg: process.env.NODE_ENV !== 'production',
         graphiql: true,
         showErrorStack: true,

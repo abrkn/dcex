@@ -78,7 +78,7 @@ const main = async () => {
   // TODO: detect re-org
   console.log('Starting');
 
-  const db = pgp()(DATABASE_URL);
+  const db = pgp()(DATABASE_URL + '?sslmode=require');
 
   const tick = async () => {
     let { height: localHeight } = await db.one('select coalesce(max(height), -1) height from block');
