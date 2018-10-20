@@ -31,6 +31,7 @@ export const blockQuery = gql`
               n
               scriptPubKey
               value
+              spent
             }
           }
         }

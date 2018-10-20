@@ -13,11 +13,13 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 9 then
+    if (select schema_version from settings) = 10 then
       return;
     end if;
   end if;
 
+  drop trigger if exists vin_delete on vin;
+  drop function if exists vin_delete();
   drop trigger if exists vin_insert on vin;
   drop function if exists vin_insert();
   drop table if exists vout;
@@ -27,7 +29,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(9)
+    schema_version int not null default(10)
   );
 
   insert into settings default values;
@@ -69,16 +71,21 @@ begin
     tx_id text not null references tx(tx_id) on delete cascade,
     n int check(n >= 0),
     script_pub_key jsonb,
-    value numeric not null
+    value numeric not null,
+    spent bool not null default(false)
   );
 
-  -- TODO: Add an unwind of this if used to aggregate
   create function vin_insert() returns trigger as $$
   begin
     if new.tx_id is not null then
       select value
       from vout
       into new.value
+      where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
+
+      -- Mark output as spent
+      update vout
+      set spent = true
       where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
     end if;
 
@@ -89,4 +96,21 @@ begin
   before insert on vin
   for each row
   execute procedure vin_insert();
+
+  create function vin_delete() returns trigger as $$
+  begin
+    if old.tx_id is not null then
+      -- Mark output as no longer spent
+      update vout
+      set spent = false
+      where vout.tx_id = old.prev_tx_id and vout.n = old.vout;
+    end if;
+
+    return old;
+  end; $$ language plpgsql;
+
+  create trigger vin_delete
+  before delete on vin
+  for each row
+  execute procedure vin_delete();
 end; $SCHEMA$ language plpgsql;

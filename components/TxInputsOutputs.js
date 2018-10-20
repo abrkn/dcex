@@ -31,7 +31,7 @@ const BlockTransactionInput = ({ vin }) => {
 };
 
 const BlockTransactionOutput = ({ vout }) => {
-  const { value } = vout;
+  const { value, spent } = vout;
   const scriptPubKey = vout.scriptPubKey && JSON.parse(vout.scriptPubKey);
   const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
 
@@ -45,7 +45,7 @@ const BlockTransactionOutput = ({ vout }) => {
           <span> </span>
         </span>
       )}
-      {value} BTC
+      {value} BTC ({spent ? 'Spent' : 'Unspent'})
     </div>
   );
 };
