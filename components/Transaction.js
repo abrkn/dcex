@@ -17,6 +17,7 @@ export const txQuery = gql`
           coinbase
           vout
           scriptSig
+          value
         }
       }
       voutsByTxId {

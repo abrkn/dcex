@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '../routes';
 
 const BlockTransactionInput = ({ vin }) => {
-  const { prevTxId, coinbase, vout } = vin;
+  const { prevTxId, coinbase, vout, value } = vin;
 
   if (coinbase) {
     return (
@@ -21,6 +21,7 @@ const BlockTransactionInput = ({ vin }) => {
             {prevTxId}:{vout}
           </a>
         </Link>
+        {value && <span> {value} BTC</span>}
       </div>
     );
   }
