@@ -12,12 +12,12 @@ export const blockQuery = gql`
   query blocks($hash: String!) {
     blockByHash(hash: $hash) {
       hash
-      txesByBlockHash {
+      txesByBlockHash(orderBy: N_ASC) {
         nodes {
           txId
           hash
           n
-          vinsByTxId {
+          vinsByTxId(orderBy: N_ASC) {
             nodes {
               prevTxId
               n
@@ -26,7 +26,7 @@ export const blockQuery = gql`
               scriptSig
             }
           }
-          voutsByTxId {
+          voutsByTxId(orderBy: N_ASC) {
             nodes {
               n
               scriptPubKey

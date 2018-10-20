@@ -10,7 +10,7 @@ export const txQuery = gql`
     txByTxId(txId: $txId) {
       n
       hash
-      vinsByTxId {
+      vinsByTxId(orderBy: N_ASC) {
         nodes {
           prevTxId
           n
@@ -20,7 +20,7 @@ export const txQuery = gql`
           value
         }
       }
-      voutsByTxId {
+      voutsByTxId(orderBy: N_ASC) {
         nodes {
           n
           scriptPubKey
