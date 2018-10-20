@@ -18,8 +18,8 @@ begin
     end if;
   end if;
 
-  drop trigger vin_insert on vin;
-  drop function vin_insert();
+  drop trigger if exists vin_insert on vin;
+  drop function if exists vin_insert();
   drop table if exists vout;
   drop table if exists vin;
   drop table if exists tx;
