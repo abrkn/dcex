@@ -14,18 +14,19 @@ export const blockQuery = gql`
       hash
       txesByBlockHash {
         nodes {
+          txId
           hash
           n
-          vinsByTxHash {
+          vinsByTxId {
             nodes {
-              txid
+              prevTxId
               n
               coinbase
               vout
               scriptSig
             }
           }
-          voutsByTxHash {
+          voutsByTxId {
             nodes {
               n
               scriptPubKey
@@ -44,11 +45,11 @@ export const blockQueryVars = {
 };
 
 const BlockTransaction = ({ tx }) => {
-  const { hash } = tx;
+  const { txId } = tx;
   return (
     <div>
-      <Link route="tx" params={{ hash }}>
-        <a>{hash}</a>
+      <Link route="tx" params={{ txId }}>
+        <a>{txId}</a>
       </Link>
       <TxInputsOutputs tx={tx} />
     </div>
@@ -59,7 +60,7 @@ const BlockTransactions = ({ txs }) => {
   return (
     <div>
       {txs.map(tx => (
-        <BlockTransaction key={tx.hash} tx={tx} />
+        <BlockTransaction key={tx.txId} tx={tx} />
       ))}
     </div>
   );

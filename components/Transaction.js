@@ -6,19 +6,20 @@ import { Link } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
 
 export const txQuery = gql`
-  query txs($hash: String!) {
-    txByHash(hash: $hash) {
+  query txs($txId: String!) {
+    txByTxId(txId: $txId) {
       n
-      vinsByTxHash {
+      hash
+      vinsByTxId {
         nodes {
-          txid
+          prevTxId
           n
           coinbase
           vout
           scriptSig
         }
       }
-      voutsByTxHash {
+      voutsByTxId {
         nodes {
           n
           scriptPubKey
@@ -34,14 +35,14 @@ export const txQueryVars = {
   // first: 10,
 };
 
-export default function Transaction({ query: { hash } }) {
+export default function Transaction({ query: { txId } }) {
   return (
-    <Query query={txQuery} variables={{ hash }}>
+    <Query query={txQuery} variables={{ txId }}>
       {({ loading, error, data }) => {
         if (error) return <ErrorMessage message="Error loading transaction." />;
         if (loading) return <div>Loading</div>;
 
-        const { txByHash: tx } = data;
+        const { txByTxId: tx } = data;
 
         if (!tx) return <ErrorMessage message={`Transaction ${txId} not found`} />;
 

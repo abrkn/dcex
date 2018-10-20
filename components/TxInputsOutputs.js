@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '../routes';
 
 const BlockTransactionInput = ({ vin }) => {
-  const { txid, coinbase, vout } = vin;
+  const { prevTxId, coinbase, vout } = vin;
 
   if (coinbase) {
     return (
@@ -13,12 +13,12 @@ const BlockTransactionInput = ({ vin }) => {
     );
   }
 
-  if (txid) {
+  if (prevTxId) {
     return (
       <div>
-        <Link route="tx" params={{ hash: txid }}>
+        <Link route="tx" params={{ txId: prevTxId }}>
           <a>
-            {txid}:{vout}
+            {prevTxId}:{vout}
           </a>
         </Link>
       </div>
@@ -50,8 +50,8 @@ const BlockTransactionOutput = ({ vout }) => {
 
 export default ({ tx }) => {
   const {
-    vinsByTxHash: { nodes: vin },
-    voutsByTxHash: { nodes: vout },
+    vinsByTxId: { nodes: vin },
+    voutsByTxId: { nodes: vout },
   } = tx;
 
   return (

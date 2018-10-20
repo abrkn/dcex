@@ -1,6 +1,6 @@
 -- TODO: synthetic ids to reduce storage
 
-do $$
+do $SCHEMA$
 declare
   settings_table_exists bool;
 begin
@@ -13,12 +13,13 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 3 then
+    if (select schema_version from settings) = 7 then
       return;
     end if;
   end if;
 
-
+  drop trigger vin_insert on vin;
+  drop function vin_insert();
   drop table if exists vout;
   drop table if exists vin;
   drop table if exists tx;
@@ -26,7 +27,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(3)
+    schema_version int not null default(7)
   );
 
   insert into settings default values;
@@ -37,35 +38,54 @@ begin
   );
 
   create table tx (
-    hash text primary key,
+    tx_id text primary key,
+    hash text not null unique,
     block_hash text not null references block(hash) on delete cascade,
     n int not null,
     unique (block_hash, n)
   );
 
   create table vin (
-    tx_hash text not null references tx(hash) on delete cascade,
+    tx_id text not null references tx(tx_id) on delete cascade,
     n int check(n >= 0),
     coinbase text,
-    txid text,
+    prev_tx_id text,
     vout int,
     script_sig jsonb,
-    primary key (tx_hash, n),
+    value numeric,
+    primary key (tx_id, n),
     check ((
       coinbase is null and
-      txid is not null and
+      prev_tx_id is not null and
       vout is not null
     ) or (
       coinbase is not null and
-      txid is null and
+      prev_tx_id is null and
       vout is null
     ))
   );
 
   create table vout (
-    tx_hash text not null references tx(hash) on delete cascade,
+    tx_id text not null references tx(tx_id) on delete cascade,
     n int check(n >= 0),
     script_pub_key jsonb,
-    value bigint not null
+    value numeric not null
   );
-end; $$ language plpgsql;
+
+  create function vin_insert() returns trigger as $$
+  begin
+    if new.tx_id is not null then
+      select value
+      from vout
+      into new.value
+      where vout.tx_id = new.tx_id and vout.n = new.n;
+    end if;
+
+    return new;
+  end; $$ language plpgsql;
+
+  create trigger vin_insert
+  before insert on vin
+  for each row
+  execute procedure vin_insert();
+end; $SCHEMA$ language plpgsql;

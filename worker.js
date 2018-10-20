@@ -21,25 +21,22 @@ safync.applyTo(bitcoinRpc, 'cmd');
 const memBitcoinRpcCmdAsync = pMemoize(bitcoinRpc.cmdAsync, { cache: createRedisMemCache(REDIS_URL, 'drivenetRpc') });
 
 function* applyVout(t, block, tx, vout, index) {
-  yield t.none(
-    `insert into vout (tx_hash, n, script_pub_key, value) values ($/txHash/, $/n/, $/scriptPubKey/, $/value/)`,
-    {
-      txHash: tx.hash,
-      n: index,
-      scriptPubKey: vout.scriptPubKey,
-      value: vout.value,
-    }
-  );
+  yield t.none(`insert into vout (tx_id, n, script_pub_key, value) values ($/txId/, $/n/, $/scriptPubKey/, $/value/)`, {
+    txId: tx.txid,
+    n: index,
+    scriptPubKey: vout.scriptPubKey,
+    value: vout.value,
+  });
 }
 
 function* applyVin(t, block, tx, vin, index) {
   yield t.none(
-    `insert into vin (tx_hash, n, coinbase, txid, vout, script_sig) values ($/txHash/, $/n/, $/coinbase/, $/txid/, $/vout/, $/scriptSig/)`,
+    `insert into vin (tx_id, n, coinbase, prev_tx_id, vout, script_sig) values ($/txId/, $/n/, $/coinbase/, $/prevTxId/, $/vout/, $/scriptSig/)`,
     {
-      txHash: tx.hash,
+      txId: tx.txid,
       n: index,
       coinbase: vin.coinbase ? vin.coinbase : null,
-      txid: vin.txid,
+      prevTxId: vin.txid,
       vout: vin.vout,
       scriptSig: vin.scriptSig,
     }
@@ -47,7 +44,8 @@ function* applyVin(t, block, tx, vin, index) {
 }
 
 function* applyTx(t, block, tx, index) {
-  yield t.none(`insert into tx (hash, block_hash, n) values ($/hash/, $/blockHash/, $/index/)`, {
+  yield t.none(`insert into tx (tx_id, hash, block_hash, n) values ($/id/, $/hash/, $/blockHash/, $/index/)`, {
+    id: tx.txid,
     hash: tx.hash,
     blockHash: block.hash,
     index,
