@@ -6,6 +6,7 @@
     "dev:watch": "NODE_ENV=development nodemon -x 'npm run dev'",
     "worker": "NODE_ENV=development node -r panik -r dotenv/config worker.js",
     "schema": "psql $DATABASE_URL --single-transaction -v ON_ERROR_STOP=on -f schema.sql",
+    "schema:watch": "nodemon -e sql -x 'npm run schema'",
     "worker:watch": "NODE_ENV=development nodemon -e sql,js,json -x 'npm run worker'",
     "heroku-postbuild": "next build && npm run schema",
     "build": "next build",
