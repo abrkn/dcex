@@ -31,7 +31,7 @@ const BlockTransactionInput = ({ vin }) => {
 };
 
 const BlockTransactionOutput = ({ vout }) => {
-  const { value, spent } = vout;
+  const { value, spendingTxId, spendingTxN } = vout;
   const scriptPubKey = vout.scriptPubKey && JSON.parse(vout.scriptPubKey);
   const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
 
@@ -45,7 +45,16 @@ const BlockTransactionOutput = ({ vout }) => {
           <span> </span>
         </span>
       )}
-      {value} BTC ({spent ? 'Spent' : 'Unspent'})
+      {value} BTC
+      <span>
+        {' '}
+        {spendingTxId && (
+          <Link route="tx" params={{ txId: spendingTxId, n: spendingTxN }}>
+            <a>Spent</a>
+          </Link>
+        )}
+        {!spendingTxId && <span>Unspent</span>}
+      </span>
     </div>
   );
 };

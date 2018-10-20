@@ -13,7 +13,7 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 10 then
+    if (select schema_version from settings) = 11 then
       return;
     end if;
   end if;
@@ -29,7 +29,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(10)
+    schema_version int not null default(11)
   );
 
   insert into settings default values;
@@ -72,7 +72,8 @@ begin
     n int check(n >= 0),
     script_pub_key jsonb,
     value numeric not null,
-    spent bool not null default(false)
+    spending_tx_id text,
+    spending_n int
   );
 
   create function vin_insert() returns trigger as $$
@@ -85,7 +86,7 @@ begin
 
       -- Mark output as spent
       update vout
-      set spent = true
+      set spending_tx_id = new.tx_id, spending_n = new.n
       where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
     end if;
 
@@ -102,7 +103,7 @@ begin
     if old.tx_id is not null then
       -- Mark output as no longer spent
       update vout
-      set spent = false
+      set spending_tx_id = null, spending_n = null
       where vout.tx_id = old.prev_tx_id and vout.n = old.vout;
     end if;
 

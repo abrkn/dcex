@@ -25,7 +25,7 @@ export const txQuery = gql`
           n
           scriptPubKey
           value
-          spent
+          spendingTxId
         }
       }
     }
