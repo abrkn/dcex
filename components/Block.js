@@ -24,6 +24,8 @@ export const blockQuery = gql`
               coinbase
               vout
               scriptSig
+              value
+              address
             }
           }
           voutsByTxId(orderBy: N_ASC) {
@@ -48,10 +50,12 @@ export const blockQueryVars = {
 const BlockTransaction = ({ tx }) => {
   const { txId } = tx;
   return (
-    <div>
-      <Link route="tx" params={{ txId }}>
-        <a>{txId}</a>
-      </Link>
+    <div style={{ border: 'solid 1px black' }}>
+      <div style={{ backgroundColor: '#eee' }}>
+        <Link route="tx" params={{ txId }}>
+          <a>{txId}</a>
+        </Link>
+      </div>
       <TxInputsOutputs tx={tx} />
     </div>
   );

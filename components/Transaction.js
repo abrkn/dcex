@@ -18,6 +18,7 @@ export const txQuery = gql`
           vout
           scriptSig
           value
+          address
         }
       }
       voutsByTxId(orderBy: N_ASC) {

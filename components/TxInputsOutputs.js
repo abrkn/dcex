@@ -3,13 +3,28 @@ import { Link } from '../routes';
 import { get } from 'lodash';
 
 const BlockTransactionInput = ({ vin }) => {
-  const { prevTxId, coinbase, vout, value } = vin;
+  const { prevTxId, coinbase, vout, value, address } = vin;
 
   if (coinbase) {
     return (
       <div>
         <p>Mined</p>
         <pre>{new Buffer(coinbase, 'hex').toString().replace(/[^ -~]+/g, '?')}</pre>
+      </div>
+    );
+  }
+
+  if (address) {
+    return (
+      <div>
+        <Link route="addrress" params={{ address }}>
+          <a>{address}</a>
+        </Link>{' '}
+        ({value && <span>{value} BTC</span>} -{' '}
+        <Link route="tx" params={{ txId: prevTxId, vout }}>
+          <a>Output</a>
+        </Link>
+        )
       </div>
     );
   }
@@ -45,16 +60,18 @@ const BlockTransactionOutput = ({ vout }) => {
           <span> </span>
         </span>
       )}
-      {value} BTC
+      {!address && <span>No address</span>}
       <span>
         {' '}
+        (
         {spendingTxId && (
           <Link route="tx" params={{ txId: spendingTxId, n: spendingTxN }}>
             <a>Spent</a>
           </Link>
         )}
-        {!spendingTxId && <span>Unspent</span>}
-      </span>
+        {!spendingTxId && <span>Unspent</span>})
+      </span>{' '}
+      {value} BTC
     </div>
   );
 };
@@ -68,16 +85,21 @@ export default ({ tx }) => {
   return (
     <div>
       <div>
-        <h3>Inputs</h3>
-        {vin.map(vin => (
-          <BlockTransactionInput key={vin.vout} vin={vin} />
-        ))}
-      </div>
-      <div>
-        <h3>Outputs</h3>
-        {vout.map(vout => (
-          <BlockTransactionOutput key={vout.n} vout={vout} />
-        ))}
+        <table>
+          <tr>
+            <td style={{ width: '48%', verticalAlign: 'top' }}>
+              {vin.map(vin => (
+                <BlockTransactionInput key={vin.vout} vin={vin} />
+              ))}
+            </td>
+            <td style={{ verticalAlign: 'middle' }}>➡</td>
+            <td style={{ width: '48%', verticalAlign: 'top' }}>
+              {vout.map(vout => (
+                <BlockTransactionOutput key={vout.n} vout={vout} />
+              ))}
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   );

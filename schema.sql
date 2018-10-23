@@ -13,11 +13,12 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 11 then
+    if (select schema_version from settings) = 16 then
       return;
     end if;
   end if;
 
+  drop view if exists received_by_address;
   drop trigger if exists vin_delete on vin;
   drop function if exists vin_delete();
   drop trigger if exists vin_insert on vin;
@@ -29,7 +30,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(11)
+    schema_version int not null default(16)
   );
 
   insert into settings default values;
@@ -55,6 +56,7 @@ begin
     vout int,
     script_sig jsonb,
     value numeric,
+    address text,
     primary key (tx_id, n),
     check ((
       coinbase is null and
@@ -79,9 +81,11 @@ begin
   create function vin_insert() returns trigger as $$
   begin
     if new.tx_id is not null then
-      select value
+      select
+        value,
+        (vout.script_pub_key->'addresses'->>0)::text address
       from vout
-      into new.value
+      into new.value, new.address
       where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
 
       -- Mark output as spent
@@ -114,4 +118,15 @@ begin
   before delete on vin
   for each row
   execute procedure vin_delete();
+
+  create view received_by_address as
+  select
+      vout.tx_id,
+      vout.n,
+      vout.value,
+      jsonb_array_elements(vout.script_pub_key->'addresses')::text address
+  from vout
+  where
+      vout.script_pub_key is not null and
+      vout.script_pub_key->'addresses' is not null;
 end; $SCHEMA$ language plpgsql;
