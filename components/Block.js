@@ -104,6 +104,10 @@ export default function Block({ query: { hash } }) {
                     <th>Height</th>
                     <td>{height}</td>
                   </tr>
+                  <tr>
+                    <th>Transactions</th>
+                    <td>{txs.nodes.length}</td>
+                  </tr>
                 </tbody>
               </table>
 
