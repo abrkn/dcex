@@ -32,7 +32,7 @@ const BlockTransactionInput = ({ vin }) => {
   if (prevTxId) {
     return (
       <div>
-        Unable to decode address (<span>{value === null ? 'Unknown' : value}</span> BTC) -{' '}
+        Unable to decode address (<span>{value === null ? 'Unknown' : value}</span> BTC -{' '}
         <Link route="tx" params={{ txId: prevTxId, vout }}>
           <a>Output</a>
         </Link>
