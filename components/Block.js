@@ -7,6 +7,7 @@ import { Link } from '../routes';
 // import BlockUpvoter from './BlockUpvoter';
 import { Router } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
+import Head from 'next/head';
 
 export const blockQuery = gql`
   query blocks($hash: String!) {
@@ -86,29 +87,34 @@ export default function Block({ query: { hash } }) {
         const { txesByBlockHash: txs, height } = block;
 
         return (
-          <section>
-            <h1>Block #{block.height}</h1>
+          <div>
+            <Head>
+              <title>Block #{height}</title>
+            </Head>
+            <section>
+              <h1>Block #{block.height}</h1>
 
-            <table>
-              <tbody>
-                <tr>
-                  <th>Hash</th>
-                  <td>{block.hash}</td>
-                </tr>
-                <tr>
-                  <th>Height</th>
-                  <td>{height}</td>
-                </tr>
-              </tbody>
-            </table>
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Hash</th>
+                    <td>{block.hash}</td>
+                  </tr>
+                  <tr>
+                    <th>Height</th>
+                    <td>{height}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-            {txs && (
-              <div>
-                <h2>Transactions</h2>
-                <BlockTransactions txs={txs.nodes} />
-              </div>
-            )}
-          </section>
+              {txs && (
+                <div>
+                  <h2>Transactions</h2>
+                  <BlockTransactions txs={txs.nodes} />
+                </div>
+              )}
+            </section>
+          </div>
         );
       }}
     </Query>

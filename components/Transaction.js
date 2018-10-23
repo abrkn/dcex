@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import ErrorMessage from './ErrorMessage';
 import { Link } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
+import Head from 'next/head';
 
 export const txQuery = gql`
   query txs($txId: String!) {
@@ -52,22 +53,27 @@ export default function Transaction({ query: { txId } }) {
         const { hash, blockHash } = tx;
 
         return (
-          <section>
-            <h1>Transaction</h1>
+          <div>
+            <Head>
+              <title>Transaction {txId}</title>
+            </Head>
+            <section>
+              <h1>Transaction</h1>
 
-            <p>{hash}</p>
+              <p>{hash}</p>
 
-            {blockHash && (
-              <p>
-                In block{' '}
-                <Link route="block" params={{ hash: blockHash }}>
-                  <a>{blockHash}</a>
-                </Link>
-              </p>
-            )}
+              {blockHash && (
+                <p>
+                  In block{' '}
+                  <Link route="block" params={{ hash: blockHash }}>
+                    <a>{blockHash}</a>
+                  </Link>
+                </p>
+              )}
 
-            <TxInputsOutputs tx={tx} />
-          </section>
+              <TxInputsOutputs tx={tx} />
+            </section>
+          </div>
         );
       }}
     </Query>
