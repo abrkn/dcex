@@ -17,7 +17,7 @@ const BlockTransactionInput = ({ vin }) => {
   if (address) {
     return (
       <div>
-        <Link route="addrress" params={{ address }}>
+        <Link route="address" params={{ address }}>
           <a>{address}</a>
         </Link>{' '}
         ({value && <span>{value} BTC</span>} -{' '}
@@ -32,12 +32,11 @@ const BlockTransactionInput = ({ vin }) => {
   if (prevTxId) {
     return (
       <div>
-        <Link route="tx" params={{ txId: prevTxId }}>
-          <a>
-            {prevTxId}:{vout}
-          </a>
+        Unable to decode address (<span>{value === null ? 'Unknown' : value}</span> BTC) -{' '}
+        <Link route="tx" params={{ txId: prevTxId, vout }}>
+          <a>Output</a>
         </Link>
-        {value && <span> {value} BTC</span>}
+        )
       </div>
     );
   }
@@ -87,13 +86,13 @@ export default ({ tx }) => {
       <div>
         <table>
           <tr>
-            <td style={{ width: '48%', verticalAlign: 'top' }}>
+            <td style={{ width: '60%', verticalAlign: 'top' }}>
               {vin.map(vin => (
                 <BlockTransactionInput key={vin.vout} vin={vin} />
               ))}
             </td>
             <td style={{ verticalAlign: 'middle' }}>➡</td>
-            <td style={{ width: '48%', verticalAlign: 'top' }}>
+            <td style={{ width: '38%', verticalAlign: 'top' }}>
               {vout.map(vout => (
                 <BlockTransactionOutput key={vout.n} vout={vout} />
               ))}
