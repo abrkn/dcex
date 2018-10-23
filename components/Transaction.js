@@ -5,6 +5,9 @@ import ErrorMessage from './ErrorMessage';
 import { Link } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
 import Head from 'next/head';
+import { chain } from '../frontendUtils';
+
+const { titlePrefix } = chain;
 
 export const txQuery = gql`
   query txs($txId: String!) {
@@ -55,7 +58,10 @@ export default function Transaction({ query: { txId } }) {
         return (
           <div>
             <Head>
-              <title>Transaction {txId}</title>
+              <title>
+                {titlePrefix}
+                Transaction {txId}
+              </title>
             </Head>
             <section>
               <h1>Transaction</h1>

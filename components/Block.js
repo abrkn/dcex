@@ -8,6 +8,9 @@ import { Link } from '../routes';
 import { Router } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
 import Head from 'next/head';
+import { chain } from '../frontendUtils';
+
+const { titlePrefix } = chain;
 
 export const blockQuery = gql`
   query blocks($hash: String!) {
@@ -89,7 +92,10 @@ export default function Block({ query: { hash } }) {
         return (
           <div>
             <Head>
-              <title>Block #{height}</title>
+              <title>
+                {titlePrefix}
+                Block #{height}
+              </title>
             </Head>
             <section>
               <h1>Block #{block.height}</h1>
