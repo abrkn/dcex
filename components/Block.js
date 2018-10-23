@@ -12,6 +12,7 @@ export const blockQuery = gql`
   query blocks($hash: String!) {
     blockByHash(hash: $hash) {
       hash
+      height
       txesByBlockHash(orderBy: N_ASC) {
         nodes {
           txId
