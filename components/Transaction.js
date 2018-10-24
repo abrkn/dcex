@@ -14,6 +14,8 @@ export const txQuery = gql`
     txByTxId(txId: $txId) {
       n
       hash
+      locktime
+      version
       blockByBlockHash {
         hash
         height
@@ -57,7 +59,7 @@ export default function Transaction({ query: { txId } }) {
 
         if (!tx) return <ErrorMessage message={`Transaction ${txId} not found`} />;
 
-        const { hash, blockByBlockHash: block } = tx;
+        const { hash, blockByBlockHash: block, locktime, version } = tx;
 
         return (
           <div>
@@ -82,6 +84,16 @@ export default function Transaction({ query: { txId } }) {
                       <td>{hash}</td>
                     </tr>
                   )}
+                  {locktime && (
+                    <tr>
+                      <th>Locktime</th>
+                      <td>{locktime}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <th>Version</th>
+                    <td>{version}</td>
+                  </tr>
                   <tr>
                     <th>In block</th>
                     <td>

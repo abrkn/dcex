@@ -45,12 +45,17 @@ function* applyVin(t, block, tx, vin, index) {
 }
 
 function* applyTx(t, block, tx, index) {
-  yield t.none(`insert into tx (tx_id, hash, block_hash, n) values ($/id/, $/hash/, $/blockHash/, $/index/)`, {
-    id: tx.txid,
-    hash: tx.hash,
-    blockHash: block.hash,
-    index,
-  });
+  yield t.none(
+    `insert into tx (tx_id, hash, block_hash, n, locktime, version) values ($/id/, $/hash/, $/blockHash/, $/index/, $/locktime/, $/version/)`,
+    {
+      id: tx.txid,
+      hash: tx.hash,
+      blockHash: block.hash,
+      index,
+      locktime: tx.locktime,
+      version: tx.version,
+    }
+  );
 
   for (let i = 0; i < tx.vin.length; i++) {
     const vin = tx.vin[i];

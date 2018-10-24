@@ -13,7 +13,7 @@ begin
    ));
 
   if settings_table_exists then
-    if (select schema_version from settings) = 16 then
+    if (select schema_version from settings) = 17 then
       return;
     end if;
   end if;
@@ -30,7 +30,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(16)
+    schema_version int not null default(17)
   );
 
   insert into settings default values;
@@ -45,6 +45,8 @@ begin
     hash text not null unique,
     block_hash text not null references block(hash) on delete cascade,
     n int not null,
+    locktime int not null,
+    version int not null,
     unique (block_hash, n)
   );
 
