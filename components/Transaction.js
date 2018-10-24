@@ -6,6 +6,7 @@ import { Link } from '../routes';
 import TxInputsOutputs from './TxInputsOutputs';
 import Head from 'next/head';
 import { chain } from '../frontendUtils';
+import Script from 'bcoin/lib/script/script';
 
 const { titlePrefix } = chain;
 
@@ -48,6 +49,37 @@ export const txQueryVars = {
   // first: 10,
 };
 
+const OutputScript = ({ output, outputIndex }) => {
+  const scriptPubKey = output.scriptPubKey && JSON.parse(output.scriptPubKey);
+
+  if (!scriptPubKey) {
+    return <div>Cannot parse output script</div>;
+  }
+
+  const script = Script.fromJSON(scriptPubKey.hex);
+
+  return <pre>{script.toString()}</pre>;
+};
+
+const OutputScripts = ({ outputs }) => (
+  <div>
+    <h2>Output Scripts</h2>
+
+    <table style={{ border: 'solid 1px #000' }}>
+      <tbody>
+        {outputs.map((output, outputIndex) => (
+          <tr style={{ borderBottom: 'solid 1px #000' }}>
+            <th>#{outputIndex}</th>
+            <td>
+              <OutputScript output={output} outputIndex={outputIndex} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 export default function Transaction({ query: { txId } }) {
   return (
     <Query query={txQuery} variables={{ txId }}>
@@ -59,7 +91,14 @@ export default function Transaction({ query: { txId } }) {
 
         if (!tx) return <ErrorMessage message={`Transaction ${txId} not found`} />;
 
-        const { hash, blockByBlockHash: block, locktime, version } = tx;
+        const {
+          hash,
+          blockByBlockHash: block,
+          locktime,
+          version,
+          vinsByTxId: { nodes: inputs },
+          voutsByTxId: { nodes: outputs },
+        } = tx;
 
         return (
           <div>
@@ -108,6 +147,10 @@ export default function Transaction({ query: { txId } }) {
               <hr />
 
               <TxInputsOutputs tx={tx} />
+
+              <hr />
+
+              {inputs.length > 0 && <OutputScripts outputs={outputs} />}
             </section>
           </div>
         );
