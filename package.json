@@ -14,8 +14,10 @@
   },
   "dependencies": {
     "apollo-boost": "^0.1.16",
+    "bcoin": "github:abrkn/bcoin#1a14218916db9484bbc50f644ebc96e99767188c",
     "bitcoin": "3.0.1",
     "bluebird": "3.5.2",
+    "bstring": "0.3.0",
     "delay": "4.1.0",
     "dotenv": "6.1.0",
     "express": "4.16.4",

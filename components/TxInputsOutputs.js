@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from '../routes';
 import { get } from 'lodash';
+import Script from 'bcoin/lib/script/script';
+import sidechains from '../sidechains';
 
 const BlockTransactionInput = ({ vin }) => {
   const { prevTxId, coinbase, vout, value, address } = vin;
@@ -48,6 +50,16 @@ const BlockTransactionOutput = ({ vout }) => {
   const { value, spendingTxId, spendingTxN } = vout;
   const scriptPubKey = vout.scriptPubKey && JSON.parse(vout.scriptPubKey);
   const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
+  const script = Script.fromJSON(scriptPubKey.hex);
+
+  const criticaldata = script.isCriticalHashCommit() && script.getCriticalData();
+  const bmmRequest = criticaldata && criticaldata.getBmmRequest();
+
+  if (bmmRequest) {
+    const sidechain = sidechains[bmmRequest.sidechainNumber];
+
+    return <div>🚗⛓⛏ Mining request from {sidechain.name}</div>;
+  }
 
   return (
     <div>
