@@ -52,6 +52,12 @@ const BlockTransactionOutput = ({ vout }) => {
   const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
   const script = Script.fromJSON(scriptPubKey.hex);
 
+  const isCommitment = script.isCommitment();
+
+  if (isCommitment) {
+    return <div>💍 SegWit commitment</div>;
+  }
+
   const criticaldata = script.isCriticalHashCommit() && script.getCriticalData();
   const bmmRequest = criticaldata && criticaldata.getBmmRequest();
 
