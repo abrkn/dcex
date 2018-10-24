@@ -68,7 +68,15 @@ const BlockTransactionOutput = ({ vout }) => {
   if (bmmRequest) {
     const sidechain = sidechains[bmmRequest.sidechainNumber];
 
-    return <div>🚗⛓⛏ Mining request from {sidechain.name}</div>;
+    return (
+      <div>
+        🚗 ⛓⛏ Mining request from {sidechain.name}
+        <br />
+        <span style={{ fontSize: '0.5em' }}>
+          Critical: <pre style={{ display: 'inline' }}>{criticaldata.hashCritical.toString('hex')}</pre>
+        </span>
+      </div>
+    );
   }
 
   return (
