@@ -8,7 +8,7 @@ import { Link } from '../routes';
 
 export const blocksQuery = gql`
   {
-    allBlocks(first: 25, orderBy: HEIGHT_DESC) {
+    allBlocks(first: 100, orderBy: HEIGHT_DESC) {
       nodes {
         hash
         height
