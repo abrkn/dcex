@@ -52,6 +52,10 @@ const BlockTransactionOutput = ({ vout }) => {
   const address = scriptPubKey && get(scriptPubKey, 'addresses.0');
   const script = Script.fromJSON(scriptPubKey.hex);
 
+  if (scriptPubKey && scriptPubKey.type === 'anyone_can_spend') {
+    return <div>🎁 Anyone-can-spend {value} BTC</div>;
+  }
+
   const isCommitment = script.isCommitment();
 
   if (isCommitment) {
