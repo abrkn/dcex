@@ -90,6 +90,8 @@ const main = async () => {
     let { height: localHeight } = await db.one('select coalesce(max(height), -1) height from block');
     const { blocks: remoteHeight } = await bitcoinRpc.cmdAsync('getblockchaininfo');
 
+    console.log(`Ticking. Local height: ${localHeight}; remote height: ${remoteHeight}`);
+
     for (; localHeight >= 0; localHeight--) {
       const { hash: localHash } = await db.one(`select hash from block where height = $/localHeight/`, {
         localHeight,
@@ -108,7 +110,7 @@ const main = async () => {
         break;
       }
 
-      console.log(`Reorg detected. Undoing block at height ${localHeight}`);
+      console.log(`${localHeight}: Local hash (${localHash}) <> remote hash (${remoteHash})`);
 
       await db
         .result(`delete from block where height = $/height/`, { height: localHeight })
