@@ -70,7 +70,7 @@ const BlockTransactionOutput = ({ vout }) => {
 
     return (
       <div>
-        🚗 ⛓⛏ Mining request from {sidechain.name}
+        🚗 ⛓⛏ Critical Data for {sidechain.name}
         <br />
         <span style={{ fontSize: '0.5em' }}>
           Critical: <pre style={{ display: 'inline' }}>{criticaldata.hashCritical.toString('hex')}</pre>
