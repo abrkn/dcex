@@ -14,6 +14,10 @@ export const txQuery = gql`
     txByTxId(txId: $txId) {
       n
       hash
+      blockByBlockHash {
+        hash
+        height
+      }
       vinsByTxId(orderBy: N_ASC) {
         nodes {
           prevTxId
@@ -53,7 +57,7 @@ export default function Transaction({ query: { txId } }) {
 
         if (!tx) return <ErrorMessage message={`Transaction ${txId} not found`} />;
 
-        const { hash, blockHash } = tx;
+        const { hash, blockByBlockHash: block } = tx;
 
         return (
           <div>
@@ -66,16 +70,30 @@ export default function Transaction({ query: { txId } }) {
             <section>
               <h1>Transaction</h1>
 
-              <p>{hash}</p>
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Txid</th>
+                    <td>{txId}</td>
+                  </tr>
+                  {txId !== hash && (
+                    <tr>
+                      <th>Hash</th>
+                      <td>{hash}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <th>In block</th>
+                    <td>
+                      <Link route="block" params={{ hash: block.hash }}>
+                        <a>#{block.height}</a>
+                      </Link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
 
-              {blockHash && (
-                <p>
-                  In block{' '}
-                  <Link route="block" params={{ hash: blockHash }}>
-                    <a>{blockHash}</a>
-                  </Link>
-                </p>
-              )}
+              <hr />
 
               <TxInputsOutputs tx={tx} />
             </section>
