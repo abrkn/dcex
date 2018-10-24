@@ -84,7 +84,7 @@ export default function Transaction({ query: { txId } }) {
                       <td>{hash}</td>
                     </tr>
                   )}
-                  {locktime && (
+                  {locktime > 0 && (
                     <tr>
                       <th>Locktime</th>
                       <td>{locktime}</td>
