@@ -19,7 +19,8 @@ const { BITCOIND_RPC_URL, REDIS_URL } = process.env;
 const bitcoinRpc = new bitcoin.Client(urlToBitcoinOptions(new URL(BITCOIND_RPC_URL)));
 safync.applyTo(bitcoinRpc, 'cmd');
 
-const memBitcoinRpcCmdAsync = pMemoize(bitcoinRpc.cmdAsync, { cache: createRedisMemCache(REDIS_URL, 'drivenetRpc') });
+// const memBitcoinRpcCmdAsync = pMemoize(bitcoinRpc.cmdAsync, { cache: createRedisMemCache(REDIS_URL, 'drivenetRpc') });
+const memBitcoinRpcCmdAsync = bitcoinRpc.cmdAsync.bind(bitcoinRpc);
 
 function* applyVout(t, block, tx, vout, index) {
   yield t.none(`insert into vout (tx_id, n, script_pub_key, value) values ($/txId/, $/n/, $/scriptPubKey/, $/value/)`, {
