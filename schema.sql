@@ -14,7 +14,7 @@ begin
 
   -- if false and settings_table_exists then
   if settings_table_exists then
-    if (select schema_version from settings) = 28 then
+    if (select schema_version from settings) = 30 then
       return;
     end if;
   end if;
@@ -35,7 +35,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(28)
+    schema_version int not null default(30)
   );
 
   insert into settings default values;
@@ -165,11 +165,11 @@ begin
   ) t
   inner join tx on tx.tx_id = t.tx_id;
 
-  create function get_address_txs(address text) returns setof tx as $$
+  create function get_address_txs(_address text) returns setof tx as $$
     select tx.*
     from address_tx
     inner join tx on tx.tx_id = address_tx.tx_id
-    where address_tx.address = address
-    order by address_tx.time desc;
+    where address_tx.address = _address
+    order by address_tx.time desc, tx.n asc;
   $$ language sql stable;
 end; $SCHEMA$ language plpgsql;

@@ -13,7 +13,7 @@ const { titlePrefix } = chain;
 
 const addressTxsQuery = gql`
   query addressTxs($address: String!) {
-    getAddressTxs(address: $address, first: 100) {
+    getAddressTxs(_address: $address, first: 100) {
       nodes {
         txId
         hash
