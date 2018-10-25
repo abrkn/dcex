@@ -10,6 +10,10 @@ export default () => (
         font-family: 'Source Sans Pro', sans-serif;
         font-size: 16px;
       }
+
+      a {
+        color: #000;
+      }
     `}</style>
   </div>
 );
