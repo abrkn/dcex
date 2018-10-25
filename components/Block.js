@@ -55,13 +55,34 @@ export const blockQueryVars = {
 const BlockTransaction = ({ tx }) => {
   const { txId } = tx;
   return (
-    <div style={{ border: 'solid 1px black' }}>
-      <div style={{ backgroundColor: '#eee' }}>
+    <div className="tx">
+      <div className="tx-link-container">
         <Link route="tx" params={{ txId }}>
           <a>{txId}</a>
         </Link>
       </div>
-      <TxInputsOutputs tx={tx} />
+      <div className="outputs-container">
+        <TxInputsOutputs tx={tx} />
+      </div>
+      <style jsx>{`
+        .tx {
+          border: solid 1px #555;
+          margin-bottom: 2rem;
+        }
+
+        .tx-link-container {
+          background: black;
+          padding: 0.5rem;
+        }
+
+        .tx-link-container a {
+          color: yellow;
+        }
+
+        .outputs-container {
+          padding: 0.5rem;
+        }
+      `}</style>
     </div>
   );
 };
@@ -100,7 +121,7 @@ export default function Block({ query: { hash } }) {
             <section>
               <h1>Block #{block.height}</h1>
 
-              <table>
+              <table className="facts">
                 <tbody>
                   <tr>
                     <th>Hash</th>
@@ -124,6 +145,11 @@ export default function Block({ query: { hash } }) {
                 </div>
               )}
             </section>
+            <style jsx>{`
+              .facts th {
+                text-align: left;
+              }
+            `}</style>
           </div>
         );
       }}
