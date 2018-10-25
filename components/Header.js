@@ -4,44 +4,32 @@ import { withRouter } from 'next/router';
 import logo from '../icons/magnifying-glass.svg';
 import { chain } from '../frontendUtils';
 
-// {
-//   /* <header className="App-header">
-// <img src={logo} className="App-logo" alt="logo" id="logo" />
-// <h1 className="App-title">SideShift</h1>
-// <div className="App-test">TestDrive</div>
-// <div className="App-tagline">
-//   Convert your Sidechain One coins to Drivechain mainnet coins without having to wait!
-//   <br />
-//   <div className="bold">1% fee</div>
-// </div>
-// </header> */
-// }
-
-// {<Link prefetch href="/">
-// <a className={pathname === '/' ? 'is-active' : ''}>Home</a>
-// </Link>
-// <a href="https://github.com/abrkn/dcex" target="_blank">
-// Source code (Github)
-// </a>}
-
 const Header = ({ router: { pathname } }) => (
   <header>
-    <img src={logo} className="logo" alt="Dcex" />
+    <Link prefetch href="/">
+      <a>
+        <img src={logo} className="logo" alt="Dcex" />
 
-    <h1 className="title">{chain.titlePrefix} Explorer</h1>
-    <div className="subtitle">by Drivechain.ai</div>
+        <h1 className="title">{chain.titlePrefix} Explorer</h1>
+      </a>
+    </Link>
+
+    <div className="subtitle">
+      <a href="https://drivechain.ai">by Drivechain.ai</a>
+    </div>
     <style jsx>{`
       header {
         margin-bottom: 25px;
         text-align: center;
       }
-      a {
+
+      a,
+      a:visited {
         font-size: 14px;
         margin-right: 15px;
         text-decoration: none;
-      }
-      .is-active {
-        text-decoration: underline;
+        color: #000;
+        margin: 0;
       }
 
       .logo {
