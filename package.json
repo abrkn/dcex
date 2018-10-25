@@ -2,7 +2,7 @@
   "name": "dcex",
   "version": "1.0.0",
   "scripts": {
-    "dev": "NODE_ENV=development node server.js",
+    "dev": "NODE_ENV=development node -r dotenv/config server.js",
     "dev:watch": "NODE_ENV=development nodemon -x 'npm run dev'",
     "worker": "NODE_ENV=development node -r panik -r dotenv/config worker.js",
     "schema": "psql $DATABASE_URL --single-transaction -v ON_ERROR_STOP=on -f schema.sql",
