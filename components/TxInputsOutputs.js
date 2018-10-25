@@ -112,24 +112,41 @@ export default ({ tx }) => {
   } = tx;
 
   return (
-    <div>
-      <div>
-        <table>
-          <tr>
-            <td style={{ width: '60%', verticalAlign: 'top' }}>
-              {vin.map(vin => (
-                <BlockTransactionInput key={vin.vout} vin={vin} />
-              ))}
-            </td>
-            <td style={{ verticalAlign: 'middle' }}>➡</td>
-            <td style={{ width: '38%', verticalAlign: 'top' }}>
-              {vout.map(vout => (
-                <BlockTransactionOutput key={vout.n} vout={vout} />
-              ))}
-            </td>
-          </tr>
-        </table>
+    <div className="container">
+      <div className="tx-inputs">
+        {vin.map(vin => (
+          <BlockTransactionInput key={vin.vout} vin={vin} />
+        ))}
       </div>
+      <div className="tx-arrow">➡</div>
+      <div className="tx-outputs">
+        {vout.map(vout => (
+          <BlockTransactionOutput key={vout.n} vout={vout} />
+        ))}
+      </div>
+      <style jsx>{`
+        .container {
+          display: flex;
+        }
+
+        .tx-inputs {
+          width: 50%;
+        }
+
+        .tx-outputs {
+          width: 50%x;
+        }
+
+        .tx-arrow {
+          vertical-align: middle;
+          width: 4rem;
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          text-align: center;
+          font-size: 2rem;
+        }
+      `}</style>
     </div>
   );
 };
