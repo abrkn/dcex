@@ -14,11 +14,15 @@ begin
 
   -- if false and settings_table_exists then
   if settings_table_exists then
-    if (select schema_version from settings) = 18 then
+    if (select schema_version from settings) = 28 then
       return;
     end if;
   end if;
 
+  drop function if exists get_address_txs(address text);
+  drop view if exists address_tx;
+  drop view if exists tx_view;
+  drop view if exists sent_by_address;
   drop view if exists received_by_address;
   drop trigger if exists vin_delete on vin;
   drop function if exists vin_delete();
@@ -31,14 +35,15 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(18)
+    schema_version int not null default(28)
   );
 
   insert into settings default values;
 
   create table block (
     hash text primary key,
-    height int not null check (height >= 0)
+    height int not null check (height >= 0),
+    time timestamptz not null
   );
 
   create table tx (
@@ -127,9 +132,44 @@ begin
       vout.tx_id,
       vout.n,
       vout.value,
-      (jsonb_array_elements(vout.script_pub_key->'addresses')->>0)::text address
+      (jsonb_array_elements(vout.script_pub_key->'addresses')->>0)::text address,
+      block.time
   from vout
+  inner join tx on tx.tx_id = vout.tx_id
+  inner join block on block.hash = tx.block_hash
   where
       vout.script_pub_key is not null and
       vout.script_pub_key->'addresses' is not null;
+
+  create view sent_by_address as
+  select vin.*, block.time
+  from vin
+  inner join tx on tx.tx_id = vin.tx_id
+  inner join block on block.hash = tx.block_hash
+  where vin.address is not null;
+
+  create view tx_view as
+  select tx.*, block.time
+  from tx
+  inner join block on block.hash = tx.block_hash;
+
+  create view address_tx as
+  select tx.*, t.address, t.time
+  from
+  (
+      select tx_id, time, address
+      from received_by_address
+      union
+      select tx_id, time, address
+      from sent_by_address
+  ) t
+  inner join tx on tx.tx_id = t.tx_id;
+
+  create function get_address_txs(address text) returns setof tx as $$
+    select tx.*
+    from address_tx
+    inner join tx on tx.tx_id = address_tx.tx_id
+    where address_tx.address = address
+    order by address_tx.time desc;
+  $$ language sql stable;
 end; $SCHEMA$ language plpgsql;
