@@ -12,8 +12,9 @@ begin
    AND    c.relkind = 'r'    -- only tables
    ));
 
+  -- if false and settings_table_exists then
   if settings_table_exists then
-    if (select schema_version from settings) = 17 then
+    if (select schema_version from settings) = 18 then
       return;
     end if;
   end if;
@@ -30,7 +31,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(17)
+    schema_version int not null default(18)
   );
 
   insert into settings default values;
@@ -85,7 +86,7 @@ begin
     if new.tx_id is not null then
       select
         value,
-        (vout.script_pub_key->'addresses'->>0)::text address
+        (jsonb_array_elements(vout.script_pub_key->'addresses')->>0)::text address
       from vout
       into new.value, new.address
       where vout.tx_id = new.prev_tx_id and vout.n = new.vout;
@@ -126,7 +127,7 @@ begin
       vout.tx_id,
       vout.n,
       vout.value,
-      jsonb_array_elements(vout.script_pub_key->'addresses')::text address
+      (jsonb_array_elements(vout.script_pub_key->'addresses')->>0)::text address
   from vout
   where
       vout.script_pub_key is not null and
