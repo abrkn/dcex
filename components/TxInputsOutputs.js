@@ -4,6 +4,17 @@ import { get } from 'lodash';
 import Script from 'bcoin/lib/script/script';
 import sidechains from '../sidechains';
 
+function reverseBuffer(src) {
+  var buffer = new Buffer(src.length);
+
+  for (var i = 0, j = src.length - 1; i <= j; ++i, --j) {
+    buffer[i] = src[j];
+    buffer[j] = src[i];
+  }
+
+  return buffer;
+}
+
 const BlockTransactionInput = ({ vin }) => {
   const { prevTxId, coinbase, vout, value, address } = vin;
 
@@ -67,14 +78,17 @@ const BlockTransactionOutput = ({ vout }) => {
 
   if (bmmRequest) {
     const sidechain = sidechains[bmmRequest.sidechainNumber];
+    const hashCriticalRev = reverseBuffer(criticaldata.hashCritical);
+    const hashCriticalRevHex = hashCriticalRev.toString('hex');
+    const hashCriticalHex = criticaldata.hashCritical.toString('hex');
 
     return (
       <div>
-        🚗 ⛓⛏ Critical Data for {sidechain.name}
-        <br />
-        <span style={{ fontSize: '0.5em' }}>
-          Critical: <pre style={{ display: 'inline' }}>{criticaldata.hashCritical.toString('hex')}</pre>
-        </span>
+        🚗 Mined{' '}
+        <a href={`${sidechain.explorerUrl}/blindhash/${hashCriticalRevHex}`} title={hashCriticalHex}>
+          block
+        </a>{' '}
+        on {sidechain.name}
       </div>
     );
   }

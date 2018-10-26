@@ -70,10 +70,11 @@ function* applyTx(t, block, tx, index) {
 }
 
 function* applyBlock(t, block) {
-  yield t.none(`insert into block (hash, height, time) values ($/hash/, $/height/, $/time/)`, {
+  yield t.none(`insert into block (hash, height, time, blindhash) values ($/hash/, $/height/, $/time/, $/blindHash/)`, {
     hash: block.hash,
     height: block.height,
     time: new Date(block.time * 1e3),
+    blindHash: block.blindhash || null,
   });
 
   for (let i = 0; i < block.tx.length; i++) {

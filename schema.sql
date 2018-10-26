@@ -14,7 +14,7 @@ begin
 
   -- if false and settings_table_exists then
   if settings_table_exists then
-    if (select schema_version from settings) = 30 then
+    if (select schema_version from settings) = 31 then
       return;
     end if;
   end if;
@@ -35,13 +35,14 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(30)
+    schema_version int not null default(31)
   );
 
   insert into settings default values;
 
   create table block (
     hash text primary key,
+    blindhash text,
     height int not null check (height >= 0),
     time timestamptz not null
   );
