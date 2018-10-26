@@ -1,19 +1,45 @@
+import React from 'react';
+
 export default () => (
-  <div>
-    <style jsx global>{`
-      @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,600,700,900');
+  <style jsx global>{`
+    @import url('https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,600,700,900');
 
-      body {
-        margin: 0;
-        padding: 2rem;
-        font-family: sans-serif;
-        font-family: 'Source Sans Pro', sans-serif;
-        font-size: 16px;
-      }
+    a {
+      color: #000;
+    }
 
-      a {
-        color: #000;
-      }
-    `}</style>
-  </div>
+    /* Sticky footer. See https://codepen.io/anon/pen/BqMBpO */
+    html {
+      height: 100%;
+    }
+
+    body,
+    #__next,
+    page {
+      min-height: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1 0 auto;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    footer {
+      padding: 2em;
+      margin: 2px;
+    }
+
+    /* Global */
+    body {
+      font-family: sans-serif;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 16px;
+    }
+  `}</style>
 );

@@ -1,6 +1,5 @@
 import React from 'react';
-import App from '../components/App';
-import Header from '../components/Header';
+import Page from '../components/Page';
 import Block from '../components/Block';
 
 export default class BlockPage extends React.Component {
@@ -12,10 +11,9 @@ export default class BlockPage extends React.Component {
     const { query } = this.props;
 
     return (
-      <App>
-        <Header />
+      <Page>
         <Block {...{ query }} />
-      </App>
+      </Page>
     );
   }
 }

@@ -1,6 +1,5 @@
 import React from 'react';
-import App from '../components/App';
-import Header from '../components/Header';
+import Page from '../components/Page';
 import Transaction from '../components/Transaction';
 
 export default class TransactionPage extends React.Component {
@@ -12,10 +11,9 @@ export default class TransactionPage extends React.Component {
     const { query } = this.props;
 
     return (
-      <App>
-        <Header />
+      <Page>
         <Transaction {...{ query }} />
-      </App>
+      </Page>
     );
   }
 }

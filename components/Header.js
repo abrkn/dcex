@@ -8,9 +8,12 @@ const Header = ({ router: { pathname } }) => (
   <header>
     <Link prefetch href="/">
       <a>
-        <img src={logo} className="logo" alt="Dcex" />
+        <img src={logo} className="logo" alt={`${chain.titlePrefix} by Drivechain.ai`} />
 
-        <h1 className="title">{chain.titlePrefix} Explorer</h1>
+        <h1 className="title">
+          {chain.titlePrefix}
+          Explorer
+        </h1>
       </a>
     </Link>
 
@@ -19,6 +22,7 @@ const Header = ({ router: { pathname } }) => (
     </div>
     <style jsx>{`
       header {
+        padding-top: 24px;
         margin-bottom: 25px;
         text-align: center;
       }
@@ -58,6 +62,21 @@ const Header = ({ router: { pathname } }) => (
         color: #fff;
         padding: 2rem 2rem;
         background: #000;
+      }
+
+      nav ul {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      nav ul li {
+        list-style: none;
+        background: yellow;
+      }
+
+      nav {
+        margin-bottom: 4rem;
+        background: red;
       }
     `}</style>
   </header>

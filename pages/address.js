@@ -4,8 +4,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { chain } from '../frontendUtils';
 import { Link } from '../routes';
-import App from '../components/App';
-import Header from '../components/Header';
+import Page from '../components/Page';
 import ErrorMessage from '../components/ErrorMessage';
 import TxInputsOutputs from '../components/TxInputsOutputs';
 
@@ -97,15 +96,14 @@ export default class AddressPage extends React.Component {
     } = this.props;
 
     return (
-      <App>
+      <Page>
         <Head>
           <title>
             {titlePrefix} Address {address}
           </title>
         </Head>
-        <Header />
         <AddressContainer address={address} />
-      </App>
+      </Page>
     );
   }
 }
