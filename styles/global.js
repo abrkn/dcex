@@ -32,7 +32,6 @@ export default () => (
 
     footer {
       padding: 2em;
-      margin: 2px;
     }
 
     /* Global */
