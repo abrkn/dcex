@@ -14,7 +14,7 @@ begin
 
   -- if false and settings_table_exists then
   if settings_table_exists then
-    if (select schema_version from settings) = 31 then
+    if (select schema_version from settings) = 32 then
       return;
     end if;
   end if;
@@ -35,7 +35,7 @@ begin
   drop table if exists settings;
 
   create table settings (
-    schema_version int not null default(31)
+    schema_version int not null default(32)
   );
 
   insert into settings default values;
